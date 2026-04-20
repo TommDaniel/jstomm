@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
-import { motion, useInView, useScroll, useTransform } from 'framer-motion'
-import type { Map as MapboxMap, Marker as MapboxMarker } from 'mapbox-gl'
+import { useRef, useEffect, useState } from 'react'
+import { motion, useInView } from 'framer-motion'
+import type { Map as MapboxMap, Marker as MapboxMarker, GeoJSONSource } from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import CountUp from 'react-countup'
 import { useQuery } from '@tanstack/react-query'
@@ -44,19 +44,13 @@ function StatsCard({ totalKm, paises, estados, cidades, visible }: StatsCardProp
       animate={visible ? { opacity: 1, x: 0 } : {}}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
-      {/* Passport stamp header */}
       <div className="border-b-2 border-dashed border-dourado-vintage/40 pb-4 mb-4">
         <p className="font-script text-dourado-vintage text-lg">Passaporte de Viagens</p>
         <p className="font-sans text-creme-papel/50 text-xs">Jacinta Maria Jung Tomm</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <StatItem
-          value={totalKm}
-          suffix="+ km"
-          label="percorridos"
-          visible={visible}
-        />
+        <StatItem value={totalKm} suffix="+ km" label="percorridos" visible={visible} />
         <StatItem value={paises} suffix="" label="países" visible={visible} />
         <StatItem value={estados} suffix="" label="estados brasileiros" visible={visible} />
         <StatItem value={cidades} suffix="+" label="cidades" visible={visible} />
@@ -94,11 +88,16 @@ function StatItem({ value, suffix, label, visible }: StatItemProps) {
 
 interface MapComponentProps {
   trips: Trip[]
-  activePointIndex: number
   allPoints: TripPoint[]
+  autoStart: boolean
 }
 
-function InteractiveMap({ trips, activePointIndex, allPoints }: MapComponentProps) {
+const OVERVIEW: { center: [number, number]; zoom: number } = {
+  center: [-20, 10],
+  zoom: 1.4,
+}
+
+function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<MapboxMap | null>(null)
   const markersRef = useRef<MapboxMarker[]>([])
@@ -107,8 +106,7 @@ function InteractiveMap({ trips, activePointIndex, allPoints }: MapComponentProp
 
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
-  // Create the map exactly once per token. Subsequent scroll / data changes
-  // update sources, layers, and markers on the existing instance.
+  // Create the map exactly once. Interactive = false disables pan/zoom/rotate/touch/keyboard.
   useEffect(() => {
     if (!mapRef.current || !mapboxToken) return
 
@@ -124,19 +122,31 @@ function InteractiveMap({ trips, activePointIndex, allPoints }: MapComponentProp
         const map = new mapboxgl.Map({
           container: mapRef.current,
           style: 'mapbox://styles/mapbox/dark-v11',
-          center: [-54.2631, -28.2994],
-          zoom: 3,
-          projection: { name: 'globe' },
+          center: OVERVIEW.center,
+          zoom: OVERVIEW.zoom,
+          projection: 'globe',
+          interactive: false,
+          attributionControl: false,
+          cooperativeGestures: false,
         })
 
         mapInstanceRef.current = map
+
         map.on('load', () => {
-          if (!cancelled) setMapLoaded(true)
+          if (cancelled) return
+
+          map.setFog({
+            color: 'rgb(24, 36, 30)',
+            'high-color': 'rgb(80, 110, 95)',
+            'horizon-blend': 0.08,
+            'space-color': 'rgb(8, 12, 14)',
+            'star-intensity': 0.3,
+          })
+
+          setMapLoaded(true)
         })
       } catch {
-        if (!cancelled) {
-          setMapError('Mapa indisponível. Configure VITE_MAPBOX_TOKEN para visualizar.')
-        }
+        if (!cancelled) setMapError('Mapa indisponível.')
       }
     })()
 
@@ -150,92 +160,171 @@ function InteractiveMap({ trips, activePointIndex, allPoints }: MapComponentProp
     }
   }, [mapboxToken])
 
-  // Trip routes — re-sync sources/layers when data changes, reusing the map.
+  // Run the auto-play tour when map is loaded, section is visible, and data is present.
   useEffect(() => {
     const map = mapInstanceRef.current
-    if (!map || !mapLoaded) return
-
-    trips.forEach((trip) => {
-      const sourceId = `route-${trip.id}`
-      const layerId = `route-line-${trip.id}`
-
-      if (map.getLayer(layerId)) map.removeLayer(layerId)
-      if (map.getSource(sourceId)) map.removeSource(sourceId)
-
-      const tripPoints = allPoints.filter((p) => p.trip_id === trip.id)
-      if (tripPoints.length < 2) return
-
-      const coordinates = tripPoints
-        .sort((a, b) => a.order - b.order)
-        .map((p) => [p.longitude, p.latitude] as [number, number])
-
-      map.addSource(sourceId, {
-        type: 'geojson',
-        data: {
-          type: 'Feature',
-          properties: {},
-          geometry: { type: 'LineString', coordinates },
-        },
-      })
-
-      map.addLayer({
-        id: layerId,
-        type: 'line',
-        source: sourceId,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: {
-          'line-color': CATEGORY_COLORS[trip.category],
-          'line-width': trip.id === 3 ? 2 : 1.5,
-          'line-dasharray': [2, 2],
-          'line-opacity': 0.8,
-        },
-      })
-    })
-  }, [mapLoaded, trips, allPoints])
-
-  // Markers — scroll animation only swaps these, does not rebuild the map.
-  useEffect(() => {
-    const map = mapInstanceRef.current
-    if (!map || !mapLoaded) return
+    if (!map || !mapLoaded || !autoStart || allPoints.length === 0 || trips.length === 0) return
 
     let cancelled = false
-    ;(async () => {
+
+    const run = async () => {
       const mapboxgl = (await import('mapbox-gl')).default
       if (cancelled) return
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const flyDuration = prefersReduced ? 0 : 1800
+      const pauseMs = prefersReduced ? 0 : 400
+
+      const tripCategoryById = new Map<number, string>()
+      trips.forEach((t) => tripCategoryById.set(t.id, t.category))
+
+      const sorted = [...allPoints].sort((a, b) => {
+        if (a.trip_id !== b.trip_id) return a.trip_id - b.trip_id
+        return a.order - b.order
+      })
+
+      // Re-init sources/layers empty, remove previous markers
+      trips.forEach((trip) => {
+        const sourceId = `route-${trip.id}`
+        const layerId = `route-line-${trip.id}`
+        if (map.getLayer(layerId)) map.removeLayer(layerId)
+        if (map.getSource(sourceId)) map.removeSource(sourceId)
+
+        map.addSource(sourceId, {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: { type: 'LineString', coordinates: [] },
+          },
+        })
+
+        map.addLayer({
+          id: layerId,
+          type: 'line',
+          source: sourceId,
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: {
+            'line-color': CATEGORY_COLORS[trip.category],
+            'line-width': 2.5,
+            'line-opacity': 0.9,
+          },
+        })
+      })
 
       markersRef.current.forEach((m) => m.remove())
       markersRef.current = []
 
-      allPoints.slice(0, activePointIndex + 1).forEach((point) => {
-        const el = document.createElement('div')
-        el.className = 'trip-marker'
-        el.style.cssText = `
-          width: ${point.is_hub ? '14px' : '8px'};
-          height: ${point.is_hub ? '14px' : '8px'};
-          background: ${point.is_hub ? '#C9A961' : '#C4A57B'};
-          border-radius: 50%;
-          border: 2px solid rgba(255,255,255,0.6);
-          box-shadow: 0 0 8px rgba(201,169,97,0.6);
-        `
+      const runningCoords = new Map<number, [number, number][]>()
+      trips.forEach((t) => runningCoords.set(t.id, []))
 
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([point.longitude, point.latitude])
-          .addTo(map)
+      // Main loop — restarts after the final overview pause
+      while (!cancelled) {
+        // Reset lines and markers at the start of each loop
+        trips.forEach((trip) => {
+          const src = map.getSource(`route-${trip.id}`) as GeoJSONSource | undefined
+          if (src) {
+            src.setData({
+              type: 'Feature',
+              properties: {},
+              geometry: { type: 'LineString', coordinates: [] },
+            })
+          }
+          runningCoords.set(trip.id, [])
+        })
+        markersRef.current.forEach((m) => m.remove())
+        markersRef.current = []
 
-        markersRef.current.push(marker)
-      })
-    })()
+        for (const point of sorted) {
+          if (cancelled) return
+
+          const category = tripCategoryById.get(point.trip_id) ?? 'brasil'
+          const color = point.is_hub ? '#C9A961' : CATEGORY_COLORS[category] ?? '#C4A57B'
+          const size = point.is_hub ? 16 : 10
+
+          const el = document.createElement('div')
+          el.className = 'trip-marker'
+          el.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.85);
+            box-shadow: 0 0 14px ${color};
+            transition: transform 220ms ease-out;
+            transform: scale(0);
+          `
+          const marker = new mapboxgl.Marker(el)
+            .setLngLat([point.longitude, point.latitude])
+            .addTo(map)
+          markersRef.current.push(marker)
+          requestAnimationFrame(() => {
+            el.style.transform = 'scale(1)'
+          })
+
+          const coords = runningCoords.get(point.trip_id)!
+          coords.push([point.longitude, point.latitude])
+          const src = map.getSource(`route-${point.trip_id}`) as GeoJSONSource | undefined
+          if (src) {
+            src.setData({
+              type: 'Feature',
+              properties: {},
+              geometry: { type: 'LineString', coordinates: coords },
+            })
+          }
+
+          map.flyTo({
+            center: [point.longitude, point.latitude],
+            zoom: point.is_hub ? 4.2 : 5,
+            duration: flyDuration,
+            essential: true,
+            curve: 1.42,
+          })
+
+          if (flyDuration > 0) {
+            await new Promise<void>((resolve) => {
+              map.once('moveend', () => resolve())
+            })
+          }
+
+          if (cancelled) return
+          if (pauseMs > 0) await new Promise((r) => setTimeout(r, pauseMs))
+        }
+
+        if (cancelled) return
+
+        // Final pan back to overview, then wait before looping
+        map.flyTo({
+          center: OVERVIEW.center,
+          zoom: OVERVIEW.zoom,
+          duration: prefersReduced ? 0 : 3200,
+          essential: true,
+          curve: 1.42,
+        })
+
+        if (!prefersReduced) {
+          await new Promise<void>((resolve) => {
+            map.once('moveend', () => resolve())
+          })
+        }
+
+        if (cancelled) return
+        await new Promise((r) => setTimeout(r, 4000))
+      }
+    }
+
+    run()
 
     return () => {
       cancelled = true
     }
-  }, [mapLoaded, allPoints, activePointIndex])
+  }, [mapLoaded, autoStart, allPoints, trips])
 
   if (!mapboxToken || mapError) {
     return <MapFallback trips={trips} error={mapError} />
   }
 
-  return <div ref={mapRef} className="w-full h-full rounded-2xl" />
+  return <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" />
 }
 
 function MapFallback({ trips, error }: { trips: Trip[]; error: string | null }) {
@@ -247,7 +336,6 @@ function MapFallback({ trips, error }: { trips: Trip[]; error: string | null }) 
         {error ?? 'Configure VITE_MAPBOX_TOKEN para visualizar o mapa interativo'}
       </p>
 
-      {/* Visual route representation */}
       <div className="flex flex-wrap justify-center gap-3 mt-4">
         {trips.map((trip) => (
           <div
@@ -276,24 +364,12 @@ function MapFallback({ trips, error }: { trips: Trip[]; error: string | null }) 
 export default function MapaViagensSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
+  const mapContainerRef = useRef<HTMLDivElement>(null)
+
   const titleInView = useInView(titleRef, { once: true, margin: '-80px' })
   const statsInView = useInView(sectionRef, { once: true, margin: '-100px' })
+  const mapInView = useInView(mapContainerRef, { once: true, margin: '-10% 0px' })
 
-  const [activePointIndex, setActivePointIndex] = useState(0)
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  })
-
-  // Animate points as user scrolls through the section
-  const pointProgress = useTransform(scrollYProgress, [0.1, 0.8], [0, 25])
-  useEffect(() => {
-    return pointProgress.on('change', (v) => setActivePointIndex(Math.floor(v)))
-  }, [pointProgress])
-
-  // Fetch trips from API. initialDataUpdatedAt: 0 ensures the query refetches
-  // on mount instead of treating the static placeholder as fresh forever.
   const { data: trips } = useQuery<Trip[]>({
     queryKey: ['trips'],
     queryFn: async () => {
@@ -331,9 +407,6 @@ export default function MapaViagensSection() {
 
   const totalKm = Math.round((trips ?? STATIC_TRIPS).reduce((sum, t) => sum + t.total_km, 0) / 1000) * 1000
 
-  const handleRestart = useCallback(() => setActivePointIndex(0), [])
-  void handleRestart
-
   return (
     <section
       id="viagens"
@@ -341,7 +414,6 @@ export default function MapaViagensSection() {
       className="py-24 px-6 bg-verde-musgo/10 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-12" ref={titleRef}>
           <motion.p
             className="section-subtitle"
@@ -370,18 +442,15 @@ export default function MapaViagensSection() {
           </motion.p>
         </div>
 
-        {/* Map + Stats layout */}
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Map */}
-          <div className="flex-1 h-[500px] lg:h-[600px]">
+          <div ref={mapContainerRef} className="flex-1 h-[500px] lg:h-[600px]">
             <InteractiveMap
               trips={trips ?? STATIC_TRIPS}
-              activePointIndex={activePointIndex}
               allPoints={allPoints ?? []}
+              autoStart={mapInView}
             />
           </div>
 
-          {/* Stats card — lateral on desktop, below on mobile */}
           <div className="lg:w-72">
             <StatsCard
               totalKm={totalKm}
@@ -391,7 +460,6 @@ export default function MapaViagensSection() {
               visible={statsInView}
             />
 
-            {/* Destination list */}
             <motion.div
               className="mt-4 card-vintage"
               initial={{ opacity: 0, x: 40 }}
@@ -417,7 +485,6 @@ export default function MapaViagensSection() {
           </div>
         </div>
 
-        {/* Santo Angelo hub note */}
         <motion.div
           className="text-center mt-8"
           initial={{ opacity: 0 }}
