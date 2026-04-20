@@ -43,7 +43,7 @@
       "id": "US-007",
       "title": "Configurar threshold de cobertura no backend (>=80%)",
       "priority": 7,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-008",

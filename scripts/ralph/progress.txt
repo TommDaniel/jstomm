@@ -25,6 +25,16 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-007
+- Updated `backend/phpunit.xml`: added `<coverage>` section with clover XML, HTML, and text reports; excluded Middleware and Providers from coverage source
+- Updated `backend/composer.json`: added `test` and `test:coverage` scripts; `test:coverage` uses `--coverage --min=80` flag
+- **Learnings for future iterations:**
+  - `composer test` runs tests; `composer test:coverage` runs with >=80% line coverage threshold
+  - `--min=80` flag on `php artisan test --coverage` enforces the threshold
+  - Middleware and Providers are excluded from coverage source (boilerplate, not business logic)
+  - Coverage reports output to `coverage/` directory (gitignored)
+---
+
 ## 2026-04-20 - US-006
 - Created `backend/tests/Feature/RadioTest.php` with 14 test cases for Radios API
 - Created `backend/database/factories/RadioFactory.php`
