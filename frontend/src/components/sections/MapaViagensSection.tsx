@@ -119,29 +119,58 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
 
         mapboxgl.accessToken = mapboxToken
 
-        const map = new mapboxgl.Map({
+        const supported =
+          typeof (mapboxgl as unknown as { supported?: () => boolean }).supported === 'function'
+            ? (mapboxgl as unknown as { supported: () => boolean }).supported()
+            : true
+        if (!supported) {
+          setMapError('Seu navegador não suporta WebGL para exibir o mapa.')
+          return
+        }
+
+        const baseOptions = {
           container: mapRef.current,
           style: 'mapbox://styles/mapbox/dark-v11',
           center: OVERVIEW.center,
           zoom: OVERVIEW.zoom,
-          projection: 'globe',
           interactive: false,
           attributionControl: false,
-          cooperativeGestures: false,
-        })
+        } as const
+
+        // Globe first for the world-tour feel; fall back to mercator if the GPU
+        // can't handle it (common on older mobile devices).
+        let map: MapboxMap
+        try {
+          map = new mapboxgl.Map({ ...baseOptions, projection: 'globe' })
+        } catch {
+          if (cancelled || !mapRef.current) return
+          map = new mapboxgl.Map(baseOptions)
+        }
 
         mapInstanceRef.current = map
+
+        map.on('error', (e) => {
+          // Surface token/tile errors in the console without breaking the page.
+          console.error('[Mapbox]', e.error?.message ?? e)
+        })
 
         map.on('load', () => {
           if (cancelled) return
 
-          map.setFog({
-            color: 'rgb(24, 36, 30)',
-            'high-color': 'rgb(80, 110, 95)',
-            'horizon-blend': 0.08,
-            'space-color': 'rgb(8, 12, 14)',
-            'star-intensity': 0.3,
-          })
+          // Mobile Safari sometimes measures the container at 0px before layout settles.
+          map.resize()
+
+          try {
+            map.setFog({
+              color: 'rgb(24, 36, 30)',
+              'high-color': 'rgb(80, 110, 95)',
+              'horizon-blend': 0.08,
+              'space-color': 'rgb(8, 12, 14)',
+              'star-intensity': 0.3,
+            })
+          } catch {
+            // Fog is atmosphere-only; mercator fallback may reject it.
+          }
 
           setMapLoaded(true)
         })
@@ -171,9 +200,9 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
       const mapboxgl = (await import('mapbox-gl')).default
       if (cancelled) return
 
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      const flyDuration = prefersReduced ? 0 : 1800
-      const pauseMs = prefersReduced ? 0 : 400
+      // flyTo uses essential:true, so iOS's "Reduce Motion" no longer zeros the tour.
+      const flyDuration = 1800
+      const pauseMs = 400
 
       const tripCategoryById = new Map<number, string>()
       trips.forEach((t) => tripCategoryById.set(t.id, t.category))
@@ -281,14 +310,12 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
             curve: 1.42,
           })
 
-          if (flyDuration > 0) {
-            await new Promise<void>((resolve) => {
-              map.once('moveend', () => resolve())
-            })
-          }
+          await new Promise<void>((resolve) => {
+            map.once('moveend', () => resolve())
+          })
 
           if (cancelled) return
-          if (pauseMs > 0) await new Promise((r) => setTimeout(r, pauseMs))
+          await new Promise((r) => setTimeout(r, pauseMs))
         }
 
         if (cancelled) return
@@ -297,16 +324,14 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
         map.flyTo({
           center: OVERVIEW.center,
           zoom: OVERVIEW.zoom,
-          duration: prefersReduced ? 0 : 3200,
+          duration: 3200,
           essential: true,
           curve: 1.42,
         })
 
-        if (!prefersReduced) {
-          await new Promise<void>((resolve) => {
-            map.once('moveend', () => resolve())
-          })
-        }
+        await new Promise<void>((resolve) => {
+          map.once('moveend', () => resolve())
+        })
 
         if (cancelled) return
         await new Promise((r) => setTimeout(r, 4000))
