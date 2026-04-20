@@ -1,0 +1,97 @@
+{
+  "name": "App 70 Anos da Vó",
+  "branchName": "feature/vo-70-anos",
+  "description": "Experiencia digital comemorativa dos 70 anos de Jacinta Maria Jung Tomm",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Setup do projeto com Docker",
+      "priority": 1,
+      "passes": true
+    },
+    {
+      "id": "US-002",
+      "title": "Configurar TailwindCSS com paleta e tipografia customizada",
+      "priority": 2,
+      "passes": false
+    },
+    {
+      "id": "US-003",
+      "title": "Hero section animado",
+      "priority": 3,
+      "passes": false
+    },
+    {
+      "id": "US-004",
+      "title": "Secao Biografia",
+      "priority": 4,
+      "passes": false
+    },
+    {
+      "id": "US-005",
+      "title": "Mapa de Viagens interativo",
+      "priority": 5,
+      "passes": false
+    },
+    {
+      "id": "US-006",
+      "title": "Secao Escritorio de Contabilidade",
+      "priority": 6,
+      "passes": false
+    },
+    {
+      "id": "US-007",
+      "title": "Linha do Tempo da Vida",
+      "priority": 7,
+      "passes": false
+    },
+    {
+      "id": "US-008",
+      "title": "Migrations e seeders do banco de dados",
+      "priority": 8,
+      "passes": false
+    },
+    {
+      "id": "US-009",
+      "title": "API REST de viagens e pontos",
+      "priority": 9,
+      "passes": false
+    },
+    {
+      "id": "US-010",
+      "title": "Autenticacao com Sanctum",
+      "priority": 10,
+      "passes": false
+    },
+    {
+      "id": "US-011",
+      "title": "API REST de albuns e fotos",
+      "priority": 11,
+      "passes": false
+    },
+    {
+      "id": "US-012",
+      "title": "Galeria de Fotos frontend",
+      "priority": 12,
+      "passes": false
+    },
+    {
+      "id": "US-013",
+      "title": "Player de Radio persistente",
+      "priority": 13,
+      "passes": false
+    },
+    {
+      "id": "US-014",
+      "title": "Easter egg do Hero",
+      "priority": 14,
+      "passes": false
+    },
+    {
+      "id": "US-015",
+      "title": "Otimizacao e deploy na Hostinger",
+      "priority": 15,
+      "passes": false
+    }
+  ]
+}
