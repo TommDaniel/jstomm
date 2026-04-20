@@ -25,6 +25,16 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-002
+- Created `backend/tests/Feature/AuthTest.php` with 11 test cases for Auth API
+- Tests cover: login success, invalid password, nonexistent user, validation errors (missing email/password, invalid format), logout (auth + unauth), get user (auth + unauth), password hidden in response
+- **Learnings for future iterations:**
+  - Use `Sanctum::actingAs($user)` (not `$this->actingAs($user)`) for API auth in feature tests
+  - API routes are prefixed `/api/` automatically — use `/api/login` etc.
+  - `assertJsonValidationErrors(['field'])` checks 422 validation responses
+  - `assertJsonMissing(['password'])` verifies sensitive fields are hidden
+---
+
 ## 2026-04-20 - US-001
 - Created `backend/phpunit.xml` with PHPUnit 11 config: SQLite :memory: DB, array cache/session/queue, bcrypt rounds=1
 - Created `backend/.env.testing` with SQLite test environment variables

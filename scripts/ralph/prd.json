@@ -13,7 +13,7 @@
       "id": "US-002",
       "title": "Feature tests para Auth API",
       "priority": 2,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-003",
