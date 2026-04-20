@@ -292,7 +292,8 @@ export default function MapaViagensSection() {
     return pointProgress.on('change', (v) => setActivePointIndex(Math.floor(v)))
   }, [pointProgress])
 
-  // Fetch trips from API (falls back to static if API not available)
+  // Fetch trips from API. initialDataUpdatedAt: 0 ensures the query refetches
+  // on mount instead of treating the static placeholder as fresh forever.
   const { data: trips } = useQuery<Trip[]>({
     queryKey: ['trips'],
     queryFn: async () => {
@@ -304,11 +305,12 @@ export default function MapaViagensSection() {
       }
     },
     initialData: STATIC_TRIPS,
+    initialDataUpdatedAt: 0,
     staleTime: Infinity,
   })
 
   const { data: allPoints } = useQuery<TripPoint[]>({
-    queryKey: ['trip-points'],
+    queryKey: ['trip-points', trips?.map((t) => t.id).join(',')],
     queryFn: async () => {
       try {
         const results = await Promise.all(
@@ -321,8 +323,9 @@ export default function MapaViagensSection() {
         return []
       }
     },
-    enabled: !!trips,
+    enabled: !!trips && trips.length > 0,
     initialData: [],
+    initialDataUpdatedAt: 0,
     staleTime: Infinity,
   })
 
