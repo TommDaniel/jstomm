@@ -13,7 +13,7 @@
       "id": "US-002",
       "title": "Configurar TailwindCSS com paleta e tipografia customizada",
       "priority": 2,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-003",
