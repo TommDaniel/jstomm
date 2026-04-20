@@ -4,6 +4,7 @@ import EasterEgg from '@/components/sections/EasterEgg'
 import BiografiaSection from '@/components/sections/BiografiaSection'
 import MapaViagensSection from '@/components/sections/MapaViagensSection'
 import EscritorioSection from '@/components/sections/EscritorioSection'
+import TimelineSection from '@/components/sections/TimelineSection'
 
 export default function LandingPage() {
   const [easterEggActive, setEasterEggActive] = useState(false)
@@ -16,6 +17,7 @@ export default function LandingPage() {
       <BiografiaSection />
       <MapaViagensSection />
       <EscritorioSection />
+      <TimelineSection />
     </main>
   )
 }
