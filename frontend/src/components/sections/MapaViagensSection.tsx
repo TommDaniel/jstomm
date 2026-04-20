@@ -204,6 +204,23 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
       const flyDuration = 1800
       const pauseMs = 400
 
+      // Wait for a flyTo to finish. The moveend listener is registered before the
+      // animation starts to dodge the race where essential:true fires moveend
+      // synchronously. The timeout guarantees the loop can't hang if the event
+      // never arrives (seen on some mobile browsers).
+      const waitForMoveEnd = (duration: number) =>
+        new Promise<void>((resolve) => {
+          let done = false
+          const finish = () => {
+            if (done) return
+            done = true
+            map.off('moveend', finish)
+            resolve()
+          }
+          map.once('moveend', finish)
+          setTimeout(finish, duration + 500)
+        })
+
       const tripCategoryById = new Map<number, string>()
       trips.forEach((t) => tripCategoryById.set(t.id, t.category))
 
@@ -302,6 +319,7 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
             })
           }
 
+          const moveEnd = waitForMoveEnd(flyDuration)
           map.flyTo({
             center: [point.longitude, point.latitude],
             zoom: point.is_hub ? 4.2 : 5,
@@ -309,10 +327,7 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
             essential: true,
             curve: 1.42,
           })
-
-          await new Promise<void>((resolve) => {
-            map.once('moveend', () => resolve())
-          })
+          await moveEnd
 
           if (cancelled) return
           await new Promise((r) => setTimeout(r, pauseMs))
@@ -321,6 +336,7 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
         if (cancelled) return
 
         // Final pan back to overview, then wait before looping
+        const overviewMoveEnd = waitForMoveEnd(3200)
         map.flyTo({
           center: OVERVIEW.center,
           zoom: OVERVIEW.zoom,
@@ -328,10 +344,7 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
           essential: true,
           curve: 1.42,
         })
-
-        await new Promise<void>((resolve) => {
-          map.once('moveend', () => resolve())
-        })
+        await overviewMoveEnd
 
         if (cancelled) return
         await new Promise((r) => setTimeout(r, 4000))
@@ -349,7 +362,10 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
     return <MapFallback trips={trips} error={mapError} />
   }
 
-  return <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" />
+  // Border radius and overflow live on the parent wrapper: some mobile Safari
+  // versions repaint the WebGL canvas incorrectly when clipped by border-radius
+  // on the container element itself.
+  return <div ref={mapRef} className="w-full h-full" />
 }
 
 function MapFallback({ trips, error }: { trips: Trip[]; error: string | null }) {
@@ -389,11 +405,9 @@ function MapFallback({ trips, error }: { trips: Trip[]; error: string | null }) 
 export default function MapaViagensSection() {
   const sectionRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLDivElement>(null)
-  const mapContainerRef = useRef<HTMLDivElement>(null)
 
   const titleInView = useInView(titleRef, { once: true, margin: '-80px' })
   const statsInView = useInView(sectionRef, { once: true, margin: '-100px' })
-  const mapInView = useInView(mapContainerRef, { once: true, margin: '-10% 0px' })
 
   const { data: trips } = useQuery<Trip[]>({
     queryKey: ['trips'],
@@ -468,11 +482,11 @@ export default function MapaViagensSection() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          <div ref={mapContainerRef} className="flex-1 h-[500px] lg:h-[600px]">
+          <div className="flex-1 h-[500px] lg:h-[600px] rounded-2xl overflow-hidden">
             <InteractiveMap
               trips={trips ?? STATIC_TRIPS}
               allPoints={allPoints ?? []}
-              autoStart={mapInView}
+              autoStart
             />
           </div>
 
