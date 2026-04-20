@@ -25,6 +25,16 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-014
+- Created `/workspace/README.md` with complete Portuguese documentation
+- Sections: architecture diagram (ASCII), stack table, prerequisites, local setup (Docker), environment variables, tests (backend + frontend), deploy (Hostinger + backend), project structure, API endpoints table
+- **Learnings for future iterations:**
+  - The project root is `/workspace/` — README goes there
+  - MinIO bucket `vo-fotos` needs manual creation in console (port 9001) with public read access
+  - `composer test` and `composer test:coverage` are the test commands for backend
+  - `npm test` and `npm run test:coverage` are the test commands for frontend
+---
+
 ## 2026-04-20 - US-013
 - Created `frontend/src/pages/radio/__tests__/RadiosPage.test.tsx` with 14 integration tests
 - Mocked `@/lib/api`, `framer-motion`, and `@/components/radio/RadioPlayer`
