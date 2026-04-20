@@ -25,6 +25,17 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-013
+- Created `frontend/src/pages/radio/__tests__/RadiosPage.test.tsx` with 14 integration tests
+- Mocked `@/lib/api`, `framer-motion`, and `@/components/radio/RadioPlayer`
+- Tests cover: heading, empty state, radios list, genre, RadioPlayer visibility, add panel toggle, favorite/delete buttons, delete API call, favorite toggle API, manual add mutation
+- **Learnings for future iterations:**
+  - Mock `RadioPlayer` component to avoid Howler constructor issues in page-level tests
+  - `initialData: []` in useQuery means radios list is immediately `[]` (no loading spinner) — don't test for loading state in RadiosPage
+  - `getAllByLabelText(/favorito/i)` with regex handles both "Marcar como favorito" and "Remover favorito" labels
+  - `api.put` needs to be in the mock object for RadiosPage (toggleFavorite uses `api.put`)
+---
+
 ## 2026-04-20 - US-012
 - Created `frontend/src/pages/gallery/__tests__/AlbumListPage.test.tsx` (11 tests): heading, loading, albums list/count, empty state, new album button/form, cancel, filter buttons, filter by type, photo count, create mutation
 - Created `frontend/src/pages/gallery/__tests__/AlbumDetailPage.test.tsx` (9 tests): album name (heading), breadcrumb, photos grid, caption, empty state, add photos button, uploader toggle, cancel, photo total count

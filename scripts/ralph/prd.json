@@ -79,7 +79,7 @@
       "id": "US-013",
       "title": "Integration tests para RadiosPage",
       "priority": 13,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-014",
