@@ -91,7 +91,7 @@
       "id": "US-015",
       "title": "Documentacao da API em docs/api.md",
       "priority": 15,
-      "passes": false
+      "passes": true
     }
   ]
 }
