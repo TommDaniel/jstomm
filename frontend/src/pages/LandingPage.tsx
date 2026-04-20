@@ -2,6 +2,7 @@ import { useState } from 'react'
 import HeroSection from '@/components/sections/HeroSection'
 import EasterEgg from '@/components/sections/EasterEgg'
 import BiografiaSection from '@/components/sections/BiografiaSection'
+import MapaViagensSection from '@/components/sections/MapaViagensSection'
 
 export default function LandingPage() {
   const [easterEggActive, setEasterEggActive] = useState(false)
@@ -12,6 +13,7 @@ export default function LandingPage() {
 
       <HeroSection onEasterEgg={() => setEasterEggActive(true)} />
       <BiografiaSection />
+      <MapaViagensSection />
     </main>
   )
 }
