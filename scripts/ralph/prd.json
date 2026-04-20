@@ -19,7 +19,7 @@
       "id": "US-003",
       "title": "Feature tests para Trips API",
       "priority": 3,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-004",

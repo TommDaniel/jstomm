@@ -25,6 +25,18 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-003
+- Created `backend/tests/Feature/TripTest.php` with 10 test cases for Trips API
+- Created `backend/database/factories/TripFactory.php` and `TripPointFactory.php`
+- Added `HasFactory` trait to `Trip` and `TripPoint` models
+- Tests cover: index (ordering by year, field selection, empty), show (with/without points, 404), points (ordering, empty, 404), public access
+- **Learnings for future iterations:**
+  - Trips API is fully public — no auth needed
+  - TripPoint factory uses `is_hub` field (from migration) not in `$fillable` — set it explicitly
+  - `assertJsonPath('0.year', 1990)` checks specific index in JSON arrays
+  - `assertArrayNotHasKey('description', $item)` verifies field selection in controller
+---
+
 ## 2026-04-20 - US-002
 - Created `backend/tests/Feature/AuthTest.php` with 11 test cases for Auth API
 - Tests cover: login success, invalid password, nonexistent user, validation errors (missing email/password, invalid format), logout (auth + unauth), get user (auth + unauth), password hidden in response
