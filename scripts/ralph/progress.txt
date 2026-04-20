@@ -25,6 +25,17 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-009
+- Created `frontend/src/contexts/__tests__/AuthContext.test.tsx` (7 tests): loading state, no-token flow, fetch-user, clear-on-failure, login, logout, useAuth-outside-provider throws
+- Created `frontend/src/components/__tests__/ProtectedRoute.test.tsx` (4 tests): loading spinner, redirect to /login, renders children, loading hides children
+- All 11 tests pass
+- **Learnings for future iterations:**
+  - Mock `@/lib/api` with `vi.mock('@/lib/api', () => ({ api: { get: vi.fn(), post: vi.fn() }, setAuthToken: vi.fn() }))`
+  - `expect(() => render(<BadConsumer />)).toThrow(...)` — wrap render in arrow function to test thrown errors
+  - `act(async () => { button.click() })` needed for async event handlers
+  - `vi.spyOn(console, 'error').mockImplementation(() => {})` silences React error boundary logs during throw tests
+---
+
 ## 2026-04-20 - US-008
 - Installed: `vitest@4.1.4`, `@vitest/coverage-v8`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom`
 - Updated `frontend/vite.config.ts`: added `test` block with jsdom environment, setupFiles, coverage thresholds (70% lines/functions/branches/statements)
