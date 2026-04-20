@@ -12,42 +12,36 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 - No browser testing tools available in this environment
 - `@lenis/react` package does NOT exist in npm registry — use `lenis` directly instead
 - prd.json is at `/workspace/scripts/ralph/prd.json`
+- Backend has PHPUnit 11 + Mockery already in composer.json (require-dev) — no need to add
+- Backend controllers: AuthController, TripController, AlbumController, PhotoController, RadioController
+- Frontend has NO test framework yet — Vitest and Testing Library must be installed
+- AuthContext stores token in `localStorage` under key `auth_token`
+- PhotoController uses `Storage::fake('public')` pattern — uses `Storage` facade directly
+- AlbumController uses `$this->authorize()` for update/delete — policies exist for Album and Photo
+- RadioController uses `$this->authorize()` for update/delete/toggleFavorite
+- Mapbox GL, GSAP, tsparticles are used in visual components — must be mocked in frontend tests
+- Howler is used directly in RadioPlayer (not via a custom hook) — must be mocked with `vi.mock('howler')`
+- React Router v7 is used — use `MemoryRouter` for components that use `useNavigate` or `Link`
 
 ---
 
 ## 2026-04-20 - US-001
-- Initialized git repo on branch `feature/vo-70-anos`
-- Created full project scaffold: React 18/Vite/TypeScript frontend, Laravel 11 backend, Docker Compose
-- Files changed:
-  - `docker-compose.yml` — nginx, PHP-FPM, frontend dev server, PostgreSQL 16, MinIO
-  - `docker/nginx/nginx.conf` — proxy to frontend dev server + PHP-FPM for API routes
-  - `docker/php/Dockerfile` — PHP 8.3-FPM with all required extensions + Composer
-  - `docker/php/php.ini` — PHP config (20MB upload, opcache)
-  - `backend/` — Laravel 11 structure: routes, controllers, models, migrations, seeder
-  - `frontend/` — Vite React TypeScript scaffold with all dependencies installed
-  - `.env.example` — documented with all variables including Mapbox, MinIO, DB
-  - `scripts/ralph/prd.json` — created to track story completion
+- Created `backend/phpunit.xml` with PHPUnit 11 config: SQLite :memory: DB, array cache/session/queue, bcrypt rounds=1
+- Created `backend/.env.testing` with SQLite test environment variables
+- Created `backend/tests/TestCase.php` extending Laravel's base TestCase (Laravel 11 style — no CreatesApplication trait needed)
+- Created `backend/database/factories/UserFactory.php` with `admin()` and `unverified()` states
 - **Learnings for future iterations:**
-  - `@lenis/react` package not in registry — use the `lenis` package directly
-  - No PHP/Composer available locally — backend changes are code-only, Docker does the install
-  - `npm create vite` is interactive and cancels in non-TTY — must create files manually
-  - `git config user.email` must be set before first commit in this container
-  - Database migrations created for: users, trips, trip_points, albums, photos, radios
-  - Seeder includes all 25+ trip points with real coordinates across 3 trip groups
+  - No `vendor/` dir locally — PHP/composer runs Docker-only; can't run `php artisan test` locally
+  - Laravel 11 TestCase doesn't need `CreatesApplication` trait — just extend `Illuminate\Foundation\Testing\TestCase`
+  - SQLite :memory: works via phpunit.xml `<env>` tags — no need to publish config/database.php
+  - UserFactory is the foundation for all feature tests — always use `User::factory()->create()` or `->admin()->create()`
+  - Use `RefreshDatabase` trait in each test class to reset SQLite between tests
 ---
 
-## 2026-04-20 - US-015
-- Implemented frontend build optimizations and Hostinger deploy configuration
-- Files changed:
-  - `frontend/vite.config.ts` — added `build.target: 'es2020'`, `sourcemap: false`, and manual chunk splitting for 6 vendor groups
-  - `frontend/index.html` — font preloading with `rel="preload"` + `media="print"` swap pattern to avoid FOUT
-  - `frontend/public/.htaccess` — Apache SPA routing (mod_rewrite), 1yr cache on assets, gzip (mod_deflate), security headers
-  - `frontend/.env.production.example` — documents `VITE_MAPBOX_TOKEN` required for production builds
-  - `scripts/deploy-hostinger.sh` — rsync-based deploy script that builds frontend and uploads dist/ to Hostinger via SSH
-- **Learnings for future iterations:**
-  - Vite minifies by default with esbuild — no extra plugin needed; `sourcemap: false` is the main production toggle
-  - Hostinger uses Apache shared hosting, so .htaccess goes in `frontend/public/` and gets copied to `dist/` on build
-  - `VITE_MAPBOX_TOKEN` must be set in `.env.production` at build time (not runtime) — it's baked into the bundle
-  - API calls use relative `/api` base URL — works on Hostinger if backend is on same domain or subdomain proxy
-  - The font loading pattern (`media="print"` + `onload="this.media='all'"`) avoids render-blocking while still loading fonts
+## 2026-04-20 - Previous PRD (App 70 Anos da Vó - Features)
+- Completed all 15 feature stories (US-001 through US-015) in prior Ralph session
+- Key deliverables: Docker scaffold, Tailwind/UI, Hero/Biografia/Mapa/Escritorio/Timeline sections,
+  DB migrations+seeders, Auth API, Trips/Albums/Photos/Radios API, Gallery frontend,
+  Radio player, Easter egg, Vite build optimizations, Hostinger deploy script
+- PRD reset on 2026-04-20 to new goals: test coverage + documentation
 ---

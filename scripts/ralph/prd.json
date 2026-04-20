@@ -1,97 +1,97 @@
 {
-  "name": "App 70 Anos da Vó",
+  "name": "Testes e Documentação - App 70 Anos da Vó",
   "branchName": "feature/vo-70-anos",
-  "description": "Experiencia digital comemorativa dos 70 anos de Jacinta Maria Jung Tomm",
+  "description": "Cobertura de testes (PHPUnit ≥80% + Vitest ≥70%) e documentação completa (README + API docs)",
   "stories": [
     {
       "id": "US-001",
-      "title": "Setup do projeto com Docker",
+      "title": "Configurar ambiente de testes do backend (PHPUnit + SQLite)",
       "priority": 1,
       "passes": true
     },
     {
       "id": "US-002",
-      "title": "Configurar TailwindCSS com paleta e tipografia customizada",
+      "title": "Feature tests para Auth API",
       "priority": 2,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-003",
-      "title": "Hero section animado",
+      "title": "Feature tests para Trips API",
       "priority": 3,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-004",
-      "title": "Secao Biografia",
+      "title": "Feature tests para Albums API",
       "priority": 4,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-005",
-      "title": "Mapa de Viagens interativo",
+      "title": "Feature tests para Photos API",
       "priority": 5,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-006",
-      "title": "Secao Escritorio de Contabilidade",
+      "title": "Feature tests para Radios API",
       "priority": 6,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-007",
-      "title": "Linha do Tempo da Vida",
+      "title": "Configurar threshold de cobertura no backend (>=80%)",
       "priority": 7,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-008",
-      "title": "Migrations e seeders do banco de dados",
+      "title": "Configurar Vitest + Testing Library + cobertura no frontend",
       "priority": 8,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-009",
-      "title": "API REST de viagens e pontos",
+      "title": "Unit tests para AuthContext e ProtectedRoute",
       "priority": 9,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-010",
-      "title": "Autenticacao com Sanctum",
+      "title": "Unit tests para componente RadioPlayer",
       "priority": 10,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-011",
-      "title": "API REST de albuns e fotos",
+      "title": "Integration tests para LoginPage",
       "priority": 11,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-012",
-      "title": "Galeria de Fotos frontend",
+      "title": "Integration tests para AlbumListPage e AlbumDetailPage",
       "priority": 12,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-013",
-      "title": "Player de Radio persistente",
+      "title": "Integration tests para RadiosPage",
       "priority": 13,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-014",
-      "title": "Easter egg do Hero",
+      "title": "README completo com setup, arquitetura e deploy",
       "priority": 14,
-      "passes": true
+      "passes": false
     },
     {
       "id": "US-015",
-      "title": "Otimizacao e deploy na Hostinger",
+      "title": "Documentacao da API em docs/api.md",
       "priority": 15,
-      "passes": true
+      "passes": false
     }
   ]
 }
