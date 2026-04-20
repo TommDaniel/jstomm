@@ -19,7 +19,7 @@
       "id": "US-003",
       "title": "Hero section animado",
       "priority": 3,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-004",
