@@ -25,6 +25,18 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-006
+- Created `backend/tests/Feature/RadioTest.php` with 14 test cases for Radios API
+- Created `backend/database/factories/RadioFactory.php`
+- Created `backend/app/Policies/RadioPolicy.php` (owner-only update/delete)
+- Added `HasFactory` trait to `Radio` model
+- Tests cover: list (own radios, ordering, unauth), create (success + validation), update/delete (owner/non-owner), toggleFavorite (true/false/non-owner/unauth)
+- **Learnings for future iterations:**
+  - Routes: `PUT /api/radios/{radio}/favorite` (toggleFavorite) — uses `put` not `patch`
+  - `apiResource` for radios excludes `show` — no `GET /api/radios/{id}` endpoint
+  - RadioPolicy follows same pattern as AlbumPolicy (owner check on user_id)
+---
+
 ## 2026-04-20 - US-005
 - Created `backend/tests/Feature/PhotoTest.php` with 12 test cases for Photos API
 - Created `backend/database/factories/PhotoFactory.php`
