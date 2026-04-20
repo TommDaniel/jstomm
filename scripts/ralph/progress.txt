@@ -25,6 +25,19 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-008
+- Installed: `vitest@4.1.4`, `@vitest/coverage-v8`, `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom`
+- Updated `frontend/vite.config.ts`: added `test` block with jsdom environment, setupFiles, coverage thresholds (70% lines/functions/branches/statements)
+- Created `frontend/src/test/setup.ts`: imports `@testing-library/jest-dom` for matchers
+- Updated `frontend/package.json`: added `test`, `test:watch`, `test:coverage` scripts
+- **Learnings for future iterations:**
+  - `npm test` = `vitest run` (single pass); `npm run test:watch` = `vitest` (watch mode)
+  - `npm run test:coverage` enforces >=70% coverage threshold
+  - `/// <reference types="vitest" />` at top of vite.config.ts enables type-checking for `test` config
+  - `globals: true` in vitest config enables `describe/it/expect` without imports
+  - Vitest v4.x is installed (latest) — use `vi.mock()` not `jest.mock()`
+---
+
 ## 2026-04-20 - US-007
 - Updated `backend/phpunit.xml`: added `<coverage>` section with clover XML, HTML, and text reports; excluded Middleware and Providers from coverage source
 - Updated `backend/composer.json`: added `test` and `test:coverage` scripts; `test:coverage` uses `--coverage --min=80` flag
