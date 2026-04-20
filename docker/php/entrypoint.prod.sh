@@ -10,10 +10,10 @@ mkdir -p \
   storage/framework/testing \
   storage/logs
 
-# Rebuild caches against the live env (env is only known at runtime)
+# Rebuild caches against the live env (env is only known at runtime).
+# view:cache intentionally skipped — this backend is API-only (no Blade views).
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 php artisan event:cache
 
 # Run migrations (idempotent). Set MIGRATE_ON_BOOT=false to skip.

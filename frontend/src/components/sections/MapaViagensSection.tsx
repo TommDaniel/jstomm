@@ -1,5 +1,7 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { motion, useInView, useScroll, useTransform } from 'framer-motion'
+import type { Map as MapboxMap, Marker as MapboxMarker } from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import CountUp from 'react-countup'
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api'
@@ -98,110 +100,139 @@ interface MapComponentProps {
 
 function InteractiveMap({ trips, activePointIndex, allPoints }: MapComponentProps) {
   const mapRef = useRef<HTMLDivElement>(null)
-  const mapInstanceRef = useRef<unknown>(null)
+  const mapInstanceRef = useRef<MapboxMap | null>(null)
+  const markersRef = useRef<MapboxMarker[]>([])
+  const [mapLoaded, setMapLoaded] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
   const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
+  // Create the map exactly once per token. Subsequent scroll / data changes
+  // update sources, layers, and markers on the existing instance.
   useEffect(() => {
     if (!mapRef.current || !mapboxToken) return
 
-    let map: {
-      remove: () => void
-      on: (event: string, cb: () => void) => void
-      addSource: (id: string, config: unknown) => void
-      addLayer: (config: unknown) => void
-    } | null = null
+    let cancelled = false
 
-    const initMap = async () => {
+    ;(async () => {
       try {
-        const mapboxgl = await import('mapbox-gl')
-        await import('mapbox-gl/dist/mapbox-gl.css')
+        const mapboxgl = (await import('mapbox-gl')).default
+        if (cancelled || !mapRef.current) return
 
-        // @ts-expect-error mapboxgl type
-        mapboxgl.default.accessToken = mapboxToken
+        mapboxgl.accessToken = mapboxToken
 
-        // @ts-expect-error mapboxgl Map constructor
-        map = new mapboxgl.default.Map({
-          container: mapRef.current!,
+        const map = new mapboxgl.Map({
+          container: mapRef.current,
           style: 'mapbox://styles/mapbox/dark-v11',
           center: [-54.2631, -28.2994],
           zoom: 3,
-          projection: 'globe',
-        }) as typeof map
+          projection: { name: 'globe' },
+        })
 
         mapInstanceRef.current = map
-
-        map!.on('load', () => {
-          if (!map) return
-
-          // Add trip routes as GeoJSON lines
-          trips.forEach((trip) => {
-            const tripPoints = allPoints.filter((p) => p.trip_id === trip.id)
-            if (tripPoints.length < 2) return
-
-            const coordinates = tripPoints
-              .sort((a, b) => a.order - b.order)
-              .map((p) => [p.longitude, p.latitude])
-
-            map!.addSource(`route-${trip.id}`, {
-              type: 'geojson',
-              data: {
-                type: 'Feature',
-                properties: {},
-                geometry: { type: 'LineString', coordinates },
-              },
-            })
-
-            map!.addLayer({
-              id: `route-line-${trip.id}`,
-              type: 'line',
-              source: `route-${trip.id}`,
-              layout: { 'line-join': 'round', 'line-cap': 'round' },
-              paint: {
-                'line-color': CATEGORY_COLORS[trip.category],
-                'line-width': trip.id === 3 ? 2 : 1.5,
-                'line-dasharray': [2, 2],
-                'line-opacity': 0.8,
-              },
-            })
-          })
-
-          // Add point markers
-          allPoints.slice(0, activePointIndex + 1).forEach((point) => {
-            const el = document.createElement('div')
-            el.className = 'trip-marker'
-            el.style.cssText = `
-              width: ${point.is_hub ? '14px' : '8px'};
-              height: ${point.is_hub ? '14px' : '8px'};
-              background: ${point.is_hub ? '#C9A961' : '#C4A57B'};
-              border-radius: 50%;
-              border: 2px solid rgba(255,255,255,0.6);
-              box-shadow: 0 0 8px rgba(201,169,97,0.6);
-            `
-
-            // @ts-expect-error mapboxgl Marker
-            new mapboxgl.default.Marker(el)
-              .setLngLat([point.longitude, point.latitude])
-              .addTo(map!)
-          })
+        map.on('load', () => {
+          if (!cancelled) setMapLoaded(true)
         })
       } catch {
-        setMapError('Mapa indisponível. Configure VITE_MAPBOX_TOKEN para visualizar.')
+        if (!cancelled) {
+          setMapError('Mapa indisponível. Configure VITE_MAPBOX_TOKEN para visualizar.')
+        }
       }
-    }
-
-    initMap()
+    })()
 
     return () => {
-      map?.remove()
+      cancelled = true
+      markersRef.current.forEach((m) => m.remove())
+      markersRef.current = []
+      mapInstanceRef.current?.remove()
+      mapInstanceRef.current = null
+      setMapLoaded(false)
     }
-  }, [mapboxToken, trips, allPoints, activePointIndex])
+  }, [mapboxToken])
+
+  // Trip routes — re-sync sources/layers when data changes, reusing the map.
+  useEffect(() => {
+    const map = mapInstanceRef.current
+    if (!map || !mapLoaded) return
+
+    trips.forEach((trip) => {
+      const sourceId = `route-${trip.id}`
+      const layerId = `route-line-${trip.id}`
+
+      if (map.getLayer(layerId)) map.removeLayer(layerId)
+      if (map.getSource(sourceId)) map.removeSource(sourceId)
+
+      const tripPoints = allPoints.filter((p) => p.trip_id === trip.id)
+      if (tripPoints.length < 2) return
+
+      const coordinates = tripPoints
+        .sort((a, b) => a.order - b.order)
+        .map((p) => [p.longitude, p.latitude] as [number, number])
+
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: { type: 'LineString', coordinates },
+        },
+      })
+
+      map.addLayer({
+        id: layerId,
+        type: 'line',
+        source: sourceId,
+        layout: { 'line-join': 'round', 'line-cap': 'round' },
+        paint: {
+          'line-color': CATEGORY_COLORS[trip.category],
+          'line-width': trip.id === 3 ? 2 : 1.5,
+          'line-dasharray': [2, 2],
+          'line-opacity': 0.8,
+        },
+      })
+    })
+  }, [mapLoaded, trips, allPoints])
+
+  // Markers — scroll animation only swaps these, does not rebuild the map.
+  useEffect(() => {
+    const map = mapInstanceRef.current
+    if (!map || !mapLoaded) return
+
+    let cancelled = false
+    ;(async () => {
+      const mapboxgl = (await import('mapbox-gl')).default
+      if (cancelled) return
+
+      markersRef.current.forEach((m) => m.remove())
+      markersRef.current = []
+
+      allPoints.slice(0, activePointIndex + 1).forEach((point) => {
+        const el = document.createElement('div')
+        el.className = 'trip-marker'
+        el.style.cssText = `
+          width: ${point.is_hub ? '14px' : '8px'};
+          height: ${point.is_hub ? '14px' : '8px'};
+          background: ${point.is_hub ? '#C9A961' : '#C4A57B'};
+          border-radius: 50%;
+          border: 2px solid rgba(255,255,255,0.6);
+          box-shadow: 0 0 8px rgba(201,169,97,0.6);
+        `
+
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([point.longitude, point.latitude])
+          .addTo(map)
+
+        markersRef.current.push(marker)
+      })
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [mapLoaded, allPoints, activePointIndex])
 
   if (!mapboxToken || mapError) {
-    return (
-      <MapFallback trips={trips} error={mapError} />
-    )
+    return <MapFallback trips={trips} error={mapError} />
   }
 
   return <div ref={mapRef} className="w-full h-full rounded-2xl" />
