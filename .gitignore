@@ -2,6 +2,17 @@
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.production
+backups/
+
+# TLS / secrets (never commit private keys or certs)
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # Dependencies
 vendor/
@@ -37,8 +48,28 @@ backend/bootstrap/cache/*
 # macOS
 .DS_Store
 
-# npm
+# Logs
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Test coverage
+coverage/
+frontend/coverage/
+backend/coverage/
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Ralph runtime state
+scripts/ralph/.last-branch
 
 # Uploads
 public/storage/

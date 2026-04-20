@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1.7
+# ─── Stage 1: composer deps ─────────────────────────────────────────────────
+FROM composer:2.7 AS vendor
+WORKDIR /app
+COPY backend/composer.json backend/composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-autoloader \
+    --prefer-dist \
+    --no-interaction
+
+# ─── Stage 2: runtime ───────────────────────────────────────────────────────
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache \
+        postgresql-dev \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        libwebp-dev \
+        freetype-dev \
+        libzip-dev \
+        zip \
+        unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        gd \
+        zip \
+        exif \
+        opcache \
+        pcntl \
+    && rm -rf /var/cache/apk/*
+
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/app.ini
+COPY docker/php/php.prod.ini /usr/local/etc/php/conf.d/zz-prod.ini
+
+WORKDIR /var/www/html
+
+COPY --from=vendor /app/vendor ./vendor
+COPY backend/ ./
+
+COPY --from=composer:2.7 /usr/bin/composer /usr/bin/composer
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative \
+    && rm /usr/bin/composer
+
+RUN chown -R www-data:www-data /var/www/html \
+    && find /var/www/html/storage -type d -exec chmod 775 {} \; \
+    && find /var/www/html/bootstrap/cache -type d -exec chmod 775 {} \;
+
+COPY docker/php/entrypoint.prod.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+USER www-data
+
+EXPOSE 9000
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
