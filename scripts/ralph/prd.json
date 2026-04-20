@@ -79,19 +79,19 @@
       "id": "US-013",
       "title": "Player de Radio persistente",
       "priority": 13,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-014",
       "title": "Easter egg do Hero",
       "priority": 14,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-015",
       "title": "Otimizacao e deploy na Hostinger",
       "priority": 15,
-      "passes": false
+      "passes": true
     }
   ]
 }

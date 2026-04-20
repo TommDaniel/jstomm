@@ -35,3 +35,19 @@ Started: Mon Apr 20 06:12:33 PDT 2026
   - Database migrations created for: users, trips, trip_points, albums, photos, radios
   - Seeder includes all 25+ trip points with real coordinates across 3 trip groups
 ---
+
+## 2026-04-20 - US-015
+- Implemented frontend build optimizations and Hostinger deploy configuration
+- Files changed:
+  - `frontend/vite.config.ts` — added `build.target: 'es2020'`, `sourcemap: false`, and manual chunk splitting for 6 vendor groups
+  - `frontend/index.html` — font preloading with `rel="preload"` + `media="print"` swap pattern to avoid FOUT
+  - `frontend/public/.htaccess` — Apache SPA routing (mod_rewrite), 1yr cache on assets, gzip (mod_deflate), security headers
+  - `frontend/.env.production.example` — documents `VITE_MAPBOX_TOKEN` required for production builds
+  - `scripts/deploy-hostinger.sh` — rsync-based deploy script that builds frontend and uploads dist/ to Hostinger via SSH
+- **Learnings for future iterations:**
+  - Vite minifies by default with esbuild — no extra plugin needed; `sourcemap: false` is the main production toggle
+  - Hostinger uses Apache shared hosting, so .htaccess goes in `frontend/public/` and gets copied to `dist/` on build
+  - `VITE_MAPBOX_TOKEN` must be set in `.env.production` at build time (not runtime) — it's baked into the bundle
+  - API calls use relative `/api` base URL — works on Hostinger if backend is on same domain or subdomain proxy
+  - The font loading pattern (`media="print"` + `onload="this.media='all'"`) avoids render-blocking while still loading fonts
+---
