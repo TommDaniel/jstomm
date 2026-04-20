@@ -25,6 +25,19 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-004
+- Created `backend/tests/Feature/AlbumTest.php` with 13 test cases for Albums API
+- Created `backend/database/factories/AlbumFactory.php`
+- Created `backend/app/Policies/AlbumPolicy.php` (owner-only update/delete)
+- Added `HasFactory` trait to `Album` model
+- Tests cover: list (own albums only), create (success + validation), update (owner/non-owner/unauth), delete (owner/non-owner/404), photos_count in response
+- **Learnings for future iterations:**
+  - `AlbumPolicy` was missing — had to create it (no Policies dir existed)
+  - Laravel 11 auto-discovers policies by convention (`App\Policies\AlbumPolicy` → `App\Models\Album`)
+  - `withCount('photos')` adds `photos_count` field to response
+  - Non-owner gets 403, unauthenticated gets 401 — both need testing
+---
+
 ## 2026-04-20 - US-003
 - Created `backend/tests/Feature/TripTest.php` with 10 test cases for Trips API
 - Created `backend/database/factories/TripFactory.php` and `TripPointFactory.php`
