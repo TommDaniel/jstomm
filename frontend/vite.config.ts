@@ -19,4 +19,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: 'es2020',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'animation-vendor': ['framer-motion', 'gsap'],
+          'map-vendor': ['mapbox-gl'],
+          'media-vendor': ['howler'],
+          'ui-vendor': ['yet-another-react-lightbox', 'react-dropzone'],
+          'query-vendor': ['@tanstack/react-query', 'axios'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 800,
+  },
 })
