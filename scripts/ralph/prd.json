@@ -67,7 +67,7 @@
       "id": "US-011",
       "title": "Integration tests para LoginPage",
       "priority": 11,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-012",

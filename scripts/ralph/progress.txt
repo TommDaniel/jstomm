@@ -25,6 +25,17 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-011
+- Created `frontend/src/pages/auth/__tests__/LoginPage.test.tsx` with 10 integration tests
+- Mocked `@/contexts/AuthContext` and `framer-motion`
+- Tests cover: form rendering, heading text, back link, field updates, login call, navigation on success, loading state (disabled button), error display, error clears on retry, button re-enables after failure
+- **Learnings for future iterations:**
+  - `screen.getByLabelText('E-mail')` works because `<label htmlFor="email">` links to `<Input id="email">`
+  - `screen.getByRole('button', { name: 'Entrar' })` finds by accessible name
+  - Use `mockRejectedValueOnce` to test first-call failure then subsequent success
+  - MemoryRouter needs a `<Routes>/<Route>` with the target path (`/area-pessoal`) to test navigation
+---
+
 ## 2026-04-20 - US-010
 - Created `frontend/src/components/radio/__tests__/RadioPlayer.test.tsx` with 12 unit tests
 - Mocked `howler` with `vi.fn().mockImplementation(function(this) {...})` (regular function, not arrow function — required for `new` constructor usage)
