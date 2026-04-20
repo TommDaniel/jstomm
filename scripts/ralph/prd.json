@@ -61,13 +61,13 @@
       "id": "US-010",
       "title": "Autenticacao com Sanctum",
       "priority": 10,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-011",
       "title": "API REST de albuns e fotos",
       "priority": 11,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-012",

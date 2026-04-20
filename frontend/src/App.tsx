@@ -5,6 +5,8 @@ import { useLenis } from '@/lib/lenis'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/auth/LoginPage'
 import AreaPessoalPage from './pages/AreaPessoalPage'
+import AlbumListPage from './pages/gallery/AlbumListPage'
+import AlbumDetailPage from './pages/gallery/AlbumDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 const queryClient = new QueryClient()
@@ -23,7 +25,10 @@ function AppContent() {
             <AreaPessoalPage />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path="albuns" element={<AlbumListPage />} />
+        <Route path="albuns/:id" element={<AlbumDetailPage />} />
+      </Route>
     </Routes>
   )
 }
