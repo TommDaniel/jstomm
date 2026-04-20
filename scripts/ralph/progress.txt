@@ -25,6 +25,17 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-010
+- Created `frontend/src/components/radio/__tests__/RadioPlayer.test.tsx` with 12 unit tests
+- Mocked `howler` with `vi.fn().mockImplementation(function(this) {...})` (regular function, not arrow function — required for `new` constructor usage)
+- Mocked `framer-motion` AnimatePresence and motion.div with plain React elements
+- Tests cover: render (name, genre, play button), next/station buttons (visibility), empty radios (returns null), volume slider, Howl invocation, radio switching
+- **Learnings for future iterations:**
+  - Howl mock MUST use `function(this: any)` not arrow function — arrow functions can't be constructors (`new Howl()` fails with arrow fn)
+  - Always mock `framer-motion` in component tests to avoid animation complexity
+  - `fireEvent.click(screen.getByLabelText('...'))` is the standard way to test button interactions
+---
+
 ## 2026-04-20 - US-009
 - Created `frontend/src/contexts/__tests__/AuthContext.test.tsx` (7 tests): loading state, no-token flow, fetch-user, clear-on-failure, login, logout, useAuth-outside-provider throws
 - Created `frontend/src/components/__tests__/ProtectedRoute.test.tsx` (4 tests): loading spinner, redirect to /login, renders children, loading hides children
