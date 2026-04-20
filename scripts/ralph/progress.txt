@@ -25,6 +25,19 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-005
+- Created `backend/tests/Feature/PhotoTest.php` with 12 test cases for Photos API
+- Created `backend/database/factories/PhotoFactory.php`
+- Created `backend/app/Policies/PhotoPolicy.php` (checks photo's album user_id)
+- Added `HasFactory` trait to `Photo` model
+- Tests cover: list (paginated, 404), upload (owner/non-owner/validation/non-image), delete (owner/non-owner/unauth/404)
+- **Learnings for future iterations:**
+  - Use `Storage::fake('public')` in setUp or per-test for file upload tests
+  - `UploadedFile::fake()->image('photo.jpg')` for valid images; `->create('doc.pdf', 100, 'application/pdf')` for invalid
+  - Paginated response has `total`, `per_page`, `data` keys
+  - PhotoPolicy checks `$photo->album->user_id` — requires album relationship eager loaded
+---
+
 ## 2026-04-20 - US-004
 - Created `backend/tests/Feature/AlbumTest.php` with 13 test cases for Albums API
 - Created `backend/database/factories/AlbumFactory.php`

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Photo extends Model
 {
+    use HasFactory;
     protected $fillable = ['album_id', 'path', 'thumbnail_path', 'caption', 'taken_at', 'width', 'height', 'metadata'];
 
     protected $casts = [
