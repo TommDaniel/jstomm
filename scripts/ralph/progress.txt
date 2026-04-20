@@ -25,6 +25,19 @@ Started: Mon Apr 20 06:12:33 PDT 2026
 
 ---
 
+## 2026-04-20 - US-012
+- Created `frontend/src/pages/gallery/__tests__/AlbumListPage.test.tsx` (11 tests): heading, loading, albums list/count, empty state, new album button/form, cancel, filter buttons, filter by type, photo count, create mutation
+- Created `frontend/src/pages/gallery/__tests__/AlbumDetailPage.test.tsx` (9 tests): album name (heading), breadcrumb, photos grid, caption, empty state, add photos button, uploader toggle, cancel, photo total count
+- Updated `frontend/src/test/setup.ts`: added `IntersectionObserver` mock (jsdom doesn't have it)
+- **Learnings for future iterations:**
+  - `IntersectionObserver` must be mocked in test setup — jsdom doesn't implement it
+  - `getAllByRole('img')` skips `<img alt="">` (decorative images) — give test photos non-empty captions
+  - Mock `api.get` via `mockImplementation((url) => ...)` based on URL substring — more reliable than `mockResolvedValueOnce` chains
+  - `getByRole('heading', { name: '...' })` when text appears in multiple places (heading + breadcrumb)
+  - Always mock `yet-another-react-lightbox` and `@/components/gallery/PhotoUploader` in page tests
+  - `QueryClientProvider` needs `new QueryClient({ defaultOptions: { queries: { retry: false } } })` to avoid retry delays
+---
+
 ## 2026-04-20 - US-011
 - Created `frontend/src/pages/auth/__tests__/LoginPage.test.tsx` with 10 integration tests
 - Mocked `@/contexts/AuthContext` and `framer-motion`

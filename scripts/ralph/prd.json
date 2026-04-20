@@ -73,7 +73,7 @@
       "id": "US-012",
       "title": "Integration tests para AlbumListPage e AlbumDetailPage",
       "priority": 12,
-      "passes": false
+      "passes": true
     },
     {
       "id": "US-013",
