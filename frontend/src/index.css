@@ -3,16 +3,74 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --madeira-clara: #C4A57B;
+    --madeira-escura: #5C3D2E;
+    --verde-floresta: #1F3A2E;
+    --verde-musgo: #3D5A4A;
+    --creme-papel: #F5EFE6;
+    --dourado-vintage: #C9A961;
+    --preto-quente: #1A1510;
+
+    --background: var(--verde-floresta);
+    --foreground: var(--creme-papel);
+    --border: var(--verde-musgo);
+    --ring: var(--dourado-vintage);
+  }
+
   html {
     font-size: 18px;
-    scroll-behavior: smooth;
+    /* Lenis smooth scroll handled via JS */
   }
 
   body {
     @apply bg-verde-floresta text-creme-papel font-sans antialiased;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: theme('colors.verde-floresta');
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.dourado-vintage');
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 min-h-[48px] min-w-[48px]
+           bg-dourado-vintage text-preto-quente font-sans font-semibold rounded-lg
+           transition-all duration-200 hover:bg-madeira-clara active:scale-95
+           focus:outline-none focus:ring-2 focus:ring-dourado-vintage focus:ring-offset-2
+           focus:ring-offset-verde-floresta;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 min-h-[48px] min-w-[48px]
+           border border-dourado-vintage text-dourado-vintage font-sans font-medium rounded-lg
+           transition-all duration-200 hover:bg-dourado-vintage/10 active:scale-95
+           focus:outline-none focus:ring-2 focus:ring-dourado-vintage;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl lg:text-5xl text-dourado-vintage leading-tight;
+  }
+
+  .section-subtitle {
+    @apply font-script text-xl text-madeira-clara/80 mb-2;
+  }
+
+  .card-vintage {
+    @apply bg-verde-musgo/40 border border-madeira-clara/20 rounded-2xl p-6
+           backdrop-blur-sm;
   }
 }

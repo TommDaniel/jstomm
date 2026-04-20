@@ -1,3 +1,37 @@
 # Ralph Progress Log
 Started: Mon Apr 20 06:12:33 PDT 2026
 ---
+
+## Codebase Patterns
+- Frontend is at `/workspace/frontend/` with Vite + React 18 + TypeScript
+- Backend is at `/workspace/backend/` with Laravel 11 structure (no composer available locally — Docker-only)
+- npm is available locally at `/workspace/frontend/` for frontend work
+- All frontend typechecks run with `npm run typecheck` from `/workspace/frontend/`
+- Photos are in `frontend/public/photos/` organized as: `hero/` (6), `familia/` (8), `viagens/` (17 across 9 dirs)
+- Tailwind config at `frontend/tailwind.config.js` — custom colors already defined
+- No browser testing tools available in this environment
+- `@lenis/react` package does NOT exist in npm registry — use `lenis` directly instead
+- prd.json is at `/workspace/scripts/ralph/prd.json`
+
+---
+
+## 2026-04-20 - US-001
+- Initialized git repo on branch `feature/vo-70-anos`
+- Created full project scaffold: React 18/Vite/TypeScript frontend, Laravel 11 backend, Docker Compose
+- Files changed:
+  - `docker-compose.yml` — nginx, PHP-FPM, frontend dev server, PostgreSQL 16, MinIO
+  - `docker/nginx/nginx.conf` — proxy to frontend dev server + PHP-FPM for API routes
+  - `docker/php/Dockerfile` — PHP 8.3-FPM with all required extensions + Composer
+  - `docker/php/php.ini` — PHP config (20MB upload, opcache)
+  - `backend/` — Laravel 11 structure: routes, controllers, models, migrations, seeder
+  - `frontend/` — Vite React TypeScript scaffold with all dependencies installed
+  - `.env.example` — documented with all variables including Mapbox, MinIO, DB
+  - `scripts/ralph/prd.json` — created to track story completion
+- **Learnings for future iterations:**
+  - `@lenis/react` package not in registry — use the `lenis` package directly
+  - No PHP/Composer available locally — backend changes are code-only, Docker does the install
+  - `npm create vite` is interactive and cancels in non-TTY — must create files manually
+  - `git config user.email` must be set before first commit in this container
+  - Database migrations created for: users, trips, trip_points, albums, photos, radios
+  - Seeder includes all 25+ trip points with real coordinates across 3 trip groups
+---
