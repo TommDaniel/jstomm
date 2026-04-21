@@ -189,7 +189,7 @@ function InteractiveMap({ trips, allPoints, autoStart }: MapComponentProps) {
     }
   }, [mapboxToken])
 
-  // Run the auto-play tour when map is loaded, section is visible, and data is present.
+  // Run the auto-play tour when the map is loaded and points data is available.
   useEffect(() => {
     const map = mapInstanceRef.current
     if (!map || !mapLoaded || !autoStart || allPoints.length === 0 || trips.length === 0) return
@@ -409,7 +409,7 @@ export default function MapaViagensSection() {
   const titleInView = useInView(titleRef, { once: true, margin: '-80px' })
   const statsInView = useInView(sectionRef, { once: true, margin: '-100px' })
 
-  const { data: trips } = useQuery<Trip[]>({
+  const { data: trips = STATIC_TRIPS } = useQuery<Trip[]>({
     queryKey: ['trips'],
     queryFn: async () => {
       try {
@@ -419,29 +419,22 @@ export default function MapaViagensSection() {
         return STATIC_TRIPS
       }
     },
-    initialData: STATIC_TRIPS,
-    initialDataUpdatedAt: 0,
-    staleTime: Infinity,
+    placeholderData: STATIC_TRIPS,
+    staleTime: 5 * 60 * 1000,
   })
 
-  const { data: allPoints } = useQuery<TripPoint[]>({
-    queryKey: ['trip-points', trips?.map((t) => t.id).join(',')],
+  const { data: allPoints = [] } = useQuery<TripPoint[]>({
+    queryKey: ['trip-points', trips.map((t) => t.id).join(',')],
     queryFn: async () => {
-      try {
-        const results = await Promise.all(
-          (trips ?? STATIC_TRIPS).map((t) =>
-            api.get<TripPoint[]>(`/trips/${t.id}/points`).then((r) => r.data),
-          ),
-        )
-        return results.flat()
-      } catch {
-        return []
-      }
+      const results = await Promise.allSettled(
+        trips.map((t) =>
+          api.get<TripPoint[]>(`/trips/${t.id}/points`).then((r) => r.data),
+        ),
+      )
+      return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
     },
-    enabled: !!trips && trips.length > 0,
-    initialData: [],
-    initialDataUpdatedAt: 0,
-    staleTime: Infinity,
+    enabled: trips.length > 0,
+    staleTime: 5 * 60 * 1000,
   })
 
   const totalKm = Math.round((trips ?? STATIC_TRIPS).reduce((sum, t) => sum + t.total_km, 0) / 1000) * 1000
@@ -482,7 +475,7 @@ export default function MapaViagensSection() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="flex-1 h-[500px] lg:h-[600px] rounded-2xl overflow-hidden">
+          <div className="w-full h-[500px] lg:h-[600px] lg:flex-1 rounded-2xl overflow-hidden">
             <InteractiveMap
               trips={trips ?? STATIC_TRIPS}
               allPoints={allPoints ?? []}
