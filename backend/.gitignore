@@ -1,4 +1,5 @@
 /vendor/
+/.vendor-old-root/
 /node_modules/
 .env
 .env.backup

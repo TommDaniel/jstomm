@@ -7,6 +7,9 @@ use App\Http\Controllers\TripController;
 use App\Http\Controllers\AlbumController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\RadioController;
+use App\Http\Controllers\ApartmentController;
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,4 +39,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Radios
     Route::apiResource('radios', RadioController::class)->except(['show']);
     Route::put('/radios/{radio}/favorite', [RadioController::class, 'toggleFavorite']);
+
+    // Apartments / Bookings / Payments
+    Route::apiResource('apartments', ApartmentController::class);
+    Route::post('/apartments/{apartment}/sync-airbnb', [ApartmentController::class, 'syncAirbnb']);
+    Route::get('/apartments/{apartment}/bookings', [BookingController::class, 'index']);
+    Route::post('/apartments/{apartment}/bookings', [BookingController::class, 'store']);
+    Route::apiResource('bookings', BookingController::class)->only(['show', 'update', 'destroy']);
+    Route::post('/bookings/{booking}/payments', [PaymentController::class, 'store']);
+    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy']);
 });

@@ -30,4 +30,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Radio::class);
     }
+
+    public function apartments(): HasMany
+    {
+        return $this->hasMany(Apartment::class);
+    }
 }
