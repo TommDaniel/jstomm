@@ -39,6 +39,25 @@ services:
     networks:
       - vo_network
 
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.prod
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env.prod
+    environment:
+      # Let the app container handle migrations; scheduler only runs scheduled commands.
+      MIGRATE_ON_BOOT: "false"
+    volumes:
+      - app_storage:/var/www/html/storage
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vo_network
+
   db:
     image: postgres:16-alpine
     environment:
