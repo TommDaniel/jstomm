@@ -105,6 +105,7 @@ class DatabaseSeeder extends Seeder
         // --- RÁDIOS ---
         Radio::create(['user_id' => $jacinta->id, 'name' => 'Rádio Santo Ângelo', 'stream_url' => 'https://paineldj.com.br:20079/stream', 'genre' => 'Regional', 'is_favorite' => true, 'order' => 1]);
         Radio::create(['user_id' => $jacinta->id, 'name' => 'Rádio Sepé', 'stream_url' => 'https://jstomm.com/stream/sepe', 'genre' => 'Regional', 'is_favorite' => true, 'order' => 2]);
+        Radio::create(['user_id' => $jacinta->id, 'name' => 'Ronda Gaúcha', 'stream_url' => 'https://jstomm.com/stream/ronda', 'genre' => 'Regional', 'is_favorite' => true, 'order' => 3]);
 
         // --- ÁLBUNS ---
         $albumFamilia = Album::create(['user_id' => $jacinta->id, 'name' => 'Família', 'type' => 'momento']);
