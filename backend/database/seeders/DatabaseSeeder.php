@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
     {
         // Usuária principal: Jacinta
         $jacinta = User::firstOrCreate(
-            ['email' => 'jacinta@vo70anos.com.br'],
+            ['email' => 'jstomm@hotmail.com.br'],
             [
                 'name' => 'Jacinta Maria Jung Tomm',
-                'password' => Hash::make('vo70anos2026'),
+                'password' => Hash::make('JA2903lu'),
                 'role' => 'admin',
             ]
         );
