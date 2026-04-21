@@ -15,6 +15,7 @@ export default function RadiosPage() {
   const [showAdd, setShowAdd] = useState(false)
   const [manualName, setManualName] = useState('')
   const [manualUrl, setManualUrl] = useState('')
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   const { data: radios } = useQuery<Radio[]>({
     queryKey: ['radios'],
@@ -152,14 +153,24 @@ export default function RadiosPage() {
       {/* Radio list */}
       <div className="flex flex-col gap-3">
         {(radios ?? []).map((radio, i) => (
-          <motion.div
+          <motion.button
             key={radio.id}
-            className="flex items-center gap-4 card-vintage p-4"
+            type="button"
+            onClick={() => setCurrentIndex(i)}
+            className={`flex items-center gap-4 card-vintage p-4 text-left w-full transition-all active:scale-[0.99] ${
+              i === currentIndex
+                ? 'border-dourado-vintage/60 bg-dourado-vintage/5'
+                : 'hover:border-madeira-clara/40'
+            }`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
-            <div className="w-10 h-10 rounded-full bg-verde-musgo flex items-center justify-center flex-shrink-0">
+            <div
+              className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                i === currentIndex ? 'bg-dourado-vintage/20' : 'bg-verde-musgo'
+              }`}
+            >
               📻
             </div>
             <div className="flex-1 min-w-0">
@@ -169,24 +180,48 @@ export default function RadiosPage() {
               )}
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => favoriteMutation.mutate(radio.id)}
-                className={`text-xl min-w-[44px] min-h-[44px] flex items-center justify-center transition-all active:scale-95 ${
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  favoriteMutation.mutate(radio.id)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    favoriteMutation.mutate(radio.id)
+                  }
+                }}
+                className={`text-xl min-w-[44px] min-h-[44px] flex items-center justify-center transition-all active:scale-95 cursor-pointer ${
                   radio.is_favorite ? 'opacity-100' : 'opacity-30 hover:opacity-60'
                 }`}
                 aria-label={radio.is_favorite ? 'Remover favorito' : 'Marcar como favorito'}
               >
                 ⭐
-              </button>
-              <button
-                onClick={() => deleteMutation.mutate(radio.id)}
-                className="text-red-400/50 hover:text-red-400 text-lg min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
+              </span>
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  deleteMutation.mutate(radio.id)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    deleteMutation.mutate(radio.id)
+                  }
+                }}
+                className="text-red-400/50 hover:text-red-400 text-lg min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors cursor-pointer"
                 aria-label="Remover rádio"
               >
                 ✕
-              </button>
+              </span>
             </div>
-          </motion.div>
+          </motion.button>
         ))}
       </div>
 
@@ -199,7 +234,13 @@ export default function RadiosPage() {
       )}
 
       {/* Persistent player */}
-      {(radios ?? []).length > 0 && <RadioPlayer radios={radios ?? []} />}
+      {(radios ?? []).length > 0 && (
+        <RadioPlayer
+          radios={radios ?? []}
+          currentIndex={Math.min(currentIndex, (radios ?? []).length - 1)}
+          onIndexChange={setCurrentIndex}
+        />
+      )}
     </div>
   )
 }

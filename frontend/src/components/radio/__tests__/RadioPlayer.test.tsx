@@ -26,55 +26,58 @@ const mockRadios: Radio[] = [
   { id: 2, user_id: 1, name: 'Band FM', stream_url: 'https://stream.example.com/2', logo_url: null, genre: 'pop', is_favorite: true, order: 1 },
 ]
 
+const renderPlayer = (radios: Radio[], currentIndex = 0) =>
+  render(<RadioPlayer radios={radios} currentIndex={currentIndex} onIndexChange={vi.fn()} />)
+
 describe('RadioPlayer', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('renders the first radio name', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByText('Rádio Gaúcha')).toBeInTheDocument()
   })
 
   it('renders genre when provided', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByText(/gaúcha/)).toBeInTheDocument()
   })
 
   it('shows play button initially', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByLabelText('Tocar')).toBeInTheDocument()
   })
 
   it('shows next button when there are multiple radios', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByLabelText('Próxima rádio')).toBeInTheDocument()
   })
 
   it('does not show next button with single radio', () => {
-    render(<RadioPlayer radios={[mockRadios[0]]} />)
+    renderPlayer([mockRadios[0]])
 
     expect(screen.queryByLabelText('Próxima rádio')).not.toBeInTheDocument()
   })
 
   it('returns null when radios array is empty', () => {
-    const { container } = render(<RadioPlayer radios={[]} />)
+    const { container } = renderPlayer([])
 
     expect(container.firstChild).toBeNull()
   })
 
   it('has volume slider', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByLabelText('Volume')).toBeInTheDocument()
   })
 
   it('shows station selector dots for multiple radios', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     expect(screen.getByLabelText('Rádio 1')).toBeInTheDocument()
     expect(screen.getByLabelText('Rádio 2')).toBeInTheDocument()
@@ -82,7 +85,7 @@ describe('RadioPlayer', () => {
 
   it('clicking play button starts loading (calls Howl)', async () => {
     const { Howl } = await import('howler')
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     fireEvent.click(screen.getByLabelText('Tocar'))
 
@@ -94,24 +97,26 @@ describe('RadioPlayer', () => {
     )
   })
 
-  it('clicking next switches to second radio', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+  it('clicking next calls onIndexChange with next index', () => {
+    const onIndexChange = vi.fn()
+    render(<RadioPlayer radios={mockRadios} currentIndex={0} onIndexChange={onIndexChange} />)
 
     fireEvent.click(screen.getByLabelText('Próxima rádio'))
 
-    expect(screen.getByText('Band FM')).toBeInTheDocument()
+    expect(onIndexChange).toHaveBeenCalledWith(1)
   })
 
-  it('clicking station dot switches to that radio', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+  it('clicking station dot calls onIndexChange with that index', () => {
+    const onIndexChange = vi.fn()
+    render(<RadioPlayer radios={mockRadios} currentIndex={0} onIndexChange={onIndexChange} />)
 
     fireEvent.click(screen.getByLabelText('Rádio 2'))
 
-    expect(screen.getByText('Band FM')).toBeInTheDocument()
+    expect(onIndexChange).toHaveBeenCalledWith(1)
   })
 
   it('volume slider has correct initial value', () => {
-    render(<RadioPlayer radios={mockRadios} />)
+    renderPlayer(mockRadios)
 
     const slider = screen.getByLabelText('Volume') as HTMLInputElement
     expect(slider.value).toBe('0.8')

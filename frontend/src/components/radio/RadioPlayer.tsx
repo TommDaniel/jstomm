@@ -5,12 +5,13 @@ import type { Radio } from '@/types/radio'
 
 interface RadioPlayerProps {
   radios: Radio[]
+  currentIndex: number
+  onIndexChange: (idx: number) => void
 }
 
 const BARS_COUNT = 12
 
-export default function RadioPlayer({ radios }: RadioPlayerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
+export default function RadioPlayer({ radios, currentIndex, onIndexChange }: RadioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false)
   const [volume, setVolume] = useState(0.8)
   const [isLoading, setIsLoading] = useState(false)
@@ -84,19 +85,12 @@ export default function RadioPlayer({ radios }: RadioPlayerProps) {
   }
 
   function next() {
-    const nextIdx = (currentIndex + 1) % radios.length
-    setCurrentIndex(nextIdx)
-    loadAndPlay(radios[nextIdx])
+    onIndexChange((currentIndex + 1) % radios.length)
   }
 
   function handleVolumeChange(v: number) {
     setVolume(v)
     howlRef.current?.volume(v)
-  }
-
-  function selectRadio(idx: number) {
-    setCurrentIndex(idx)
-    loadAndPlay(radios[idx])
   }
 
   useEffect(() => {
@@ -106,6 +100,15 @@ export default function RadioPlayer({ radios }: RadioPlayerProps) {
       cancelAnimationFrame(animFrame)
     }
   }, [])
+
+  // Auto-play when the parent switches the selected radio.
+  const prevIndexRef = useRef(currentIndex)
+  useEffect(() => {
+    if (prevIndexRef.current !== currentIndex && current) {
+      loadAndPlay(current)
+    }
+    prevIndexRef.current = currentIndex
+  }, [currentIndex, current, loadAndPlay])
 
   if (!current) return null
 
@@ -184,7 +187,7 @@ export default function RadioPlayer({ radios }: RadioPlayerProps) {
             {radios.map((_, i) => (
               <button
                 key={i}
-                onClick={() => selectRadio(i)}
+                onClick={() => onIndexChange(i)}
                 className={`w-2 h-2 rounded-full transition-all ${
                   i === currentIndex ? 'bg-dourado-vintage' : 'bg-creme-papel/20 hover:bg-creme-papel/40'
                 }`}
