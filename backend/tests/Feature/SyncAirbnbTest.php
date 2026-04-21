@@ -48,13 +48,12 @@ ICS;
         $imported = app(AirbnbIcalSync::class)->sync($apt);
 
         $this->assertSame(2, $imported);
-        $this->assertDatabaseHas('bookings', [
-            'apartment_id' => $apt->id,
-            'tenant_name' => 'Reserva de Maria',
-            'check_in' => '2026-05-05',
-            'check_out' => '2026-05-09',
-            'platform' => 'airbnb',
-        ]);
+
+        $booking = $apt->bookings()->where('tenant_name', 'Reserva de Maria')->first();
+        $this->assertNotNull($booking);
+        $this->assertSame('2026-05-05', $booking->check_in->format('Y-m-d'));
+        $this->assertSame('2026-05-09', $booking->check_out->format('Y-m-d'));
+        $this->assertSame('airbnb', $booking->platform);
     }
 
     public function test_sync_is_idempotent_via_external_uid(): void
