@@ -41,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/radios/{radio}/favorite', [RadioController::class, 'toggleFavorite']);
 
     // Apartments / Bookings / Payments
+    Route::get('/agenda', [ApartmentController::class, 'agenda']);
     Route::apiResource('apartments', ApartmentController::class);
     Route::post('/apartments/{apartment}/sync-airbnb', [ApartmentController::class, 'syncAirbnb']);
     Route::get('/apartments/{apartment}/bookings', [BookingController::class, 'index']);

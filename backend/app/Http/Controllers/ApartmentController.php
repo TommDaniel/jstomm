@@ -87,4 +87,36 @@ class ApartmentController extends Controller
             'message' => "{$imported} reserva(s) sincronizada(s).",
         ]);
     }
+
+    /**
+     * Agenda: apartments + bookings que intersectam o range [from, to].
+     */
+    public function agenda(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'from' => 'required|date',
+            'to' => 'required|date|after_or_equal:from',
+        ]);
+
+        $from = $validated['from'];
+        $to = $validated['to'];
+
+        $apartments = $request->user()
+            ->apartments()
+            ->with(['bookings' => function ($q) use ($from, $to) {
+                $q->where(function ($q) use ($from, $to) {
+                    // A booking intersects [from, to] if its check_in <= to
+                    // AND (check_out >= from OR check_out is null).
+                    $q->whereDate('check_in', '<=', $to)
+                        ->where(function ($q) use ($from) {
+                            $q->whereDate('check_out', '>=', $from)
+                                ->orWhereNull('check_out');
+                        });
+                })->orderBy('check_in');
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return response()->json($apartments);
+    }
 }

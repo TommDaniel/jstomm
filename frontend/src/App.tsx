@@ -10,6 +10,7 @@ import AlbumDetailPage from './pages/gallery/AlbumDetailPage'
 import RadiosPage from './pages/radio/RadiosPage'
 import ApartamentosPage from './pages/rental/ApartamentosPage'
 import ApartamentoDetailPage from './pages/rental/ApartamentoDetailPage'
+import AgendaLocacoesPage from './pages/rental/AgendaLocacoesPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 const queryClient = new QueryClient()
@@ -33,6 +34,7 @@ function AppContent() {
         <Route path="albuns/:id" element={<AlbumDetailPage />} />
         <Route path="radios" element={<RadiosPage />} />
         <Route path="locacoes" element={<ApartamentosPage />} />
+        <Route path="locacoes/agenda" element={<AgendaLocacoesPage />} />
         <Route path="locacoes/:id" element={<ApartamentoDetailPage />} />
       </Route>
     </Routes>

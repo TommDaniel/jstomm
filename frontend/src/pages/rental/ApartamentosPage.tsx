@@ -44,9 +44,14 @@ export default function ApartamentosPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-10 pb-16">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-8 gap-2 flex-wrap">
         <h1 className="font-serif text-3xl text-dourado-vintage">Minhas Locações</h1>
-        <Button onClick={() => setShowAdd((v) => !v)}>{showAdd ? 'Fechar' : '+ Apartamento'}</Button>
+        <div className="flex gap-2">
+          <Link to="/area-pessoal/locacoes/agenda">
+            <Button variant="secondary" size="sm">📅 Agenda</Button>
+          </Link>
+          <Button onClick={() => setShowAdd((v) => !v)}>{showAdd ? 'Fechar' : '+ Apartamento'}</Button>
+        </div>
       </div>
 
       {showAdd && (
