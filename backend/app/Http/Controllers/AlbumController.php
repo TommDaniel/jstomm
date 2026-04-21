@@ -15,6 +15,13 @@ class AlbumController extends Controller
         return response()->json($albums);
     }
 
+    public function show(Album $album): JsonResponse
+    {
+        $this->authorize('view', $album);
+
+        return response()->json($album->loadCount('photos'));
+    }
+
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
