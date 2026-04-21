@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import HeroSection from '@/components/sections/HeroSection'
 import EasterEgg from '@/components/sections/EasterEgg'
 import BiografiaSection from '@/components/sections/BiografiaSection'
@@ -18,6 +19,15 @@ export default function LandingPage() {
       <MapaViagensSection />
       <EscritorioSection />
       <TimelineSection />
+
+      <footer className="border-t border-madeira-clara/10 py-8 px-6 text-center">
+        <Link
+          to="/login"
+          className="font-script text-dourado-vintage/60 hover:text-dourado-vintage text-lg transition-colors"
+        >
+          Entrar
+        </Link>
+      </footer>
     </main>
   )
 }
