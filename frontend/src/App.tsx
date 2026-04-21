@@ -8,6 +8,8 @@ import AreaPessoalPage from './pages/AreaPessoalPage'
 import AlbumListPage from './pages/gallery/AlbumListPage'
 import AlbumDetailPage from './pages/gallery/AlbumDetailPage'
 import RadiosPage from './pages/radio/RadiosPage'
+import ApartamentosPage from './pages/rental/ApartamentosPage'
+import ApartamentoDetailPage from './pages/rental/ApartamentoDetailPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 const queryClient = new QueryClient()
@@ -30,6 +32,8 @@ function AppContent() {
         <Route path="albuns" element={<AlbumListPage />} />
         <Route path="albuns/:id" element={<AlbumDetailPage />} />
         <Route path="radios" element={<RadiosPage />} />
+        <Route path="locacoes" element={<ApartamentosPage />} />
+        <Route path="locacoes/:id" element={<ApartamentoDetailPage />} />
       </Route>
     </Routes>
   )

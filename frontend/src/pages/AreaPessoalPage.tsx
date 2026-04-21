@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 const NAV_ITEMS = [
   { to: '/area-pessoal/albuns', label: 'Álbuns', icon: '📷' },
   { to: '/area-pessoal/radios', label: 'Rádios', icon: '📻' },
+  { to: '/area-pessoal/locacoes', label: 'Locações', icon: '🏠' },
 ]
 
 export default function AreaPessoalPage() {
