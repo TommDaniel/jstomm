@@ -15,11 +15,19 @@ class AirbnbIcalSync
             return 0;
         }
 
-        $response = Http::timeout(30)->get($apartment->airbnb_ical_url);
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept' => 'text/calendar,text/plain,*/*',
+                'Accept-Language' => 'pt-BR,pt;q=0.9,en;q=0.8',
+            ])
+            ->get($apartment->airbnb_ical_url);
+
         if (! $response->successful()) {
             Log::warning('Airbnb iCal fetch failed', [
                 'apartment_id' => $apartment->id,
                 'status' => $response->status(),
+                'body_preview' => substr($response->body(), 0, 200),
             ]);
 
             return 0;

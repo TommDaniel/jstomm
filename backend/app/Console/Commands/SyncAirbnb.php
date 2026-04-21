@@ -22,7 +22,11 @@ class SyncAirbnb extends Command
         }
 
         $total = 0;
-        foreach ($apartments as $apartment) {
+        foreach ($apartments as $i => $apartment) {
+            if ($i > 0) {
+                // Espaça as requisições pro Airbnb pra evitar rate limit.
+                sleep(3);
+            }
             $count = $service->sync($apartment);
             $total += $count;
             $this->info("{$apartment->name}: {$count} reserva(s) sincronizada(s).");
