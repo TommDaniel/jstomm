@@ -13,86 +13,102 @@ interface TimelineEvent {
 
 const TIMELINE_EVENTS: TimelineEvent[] = [
   {
-    year: '1956',
+    year: '15/04/1956',
     decade: '1950s',
     title: 'Nascimento em Cerro Largo',
     description:
-      'Jacinta Maria Jung nasce em 15 de abril de 1956, na Linha São Francisco, interior de Cerro Largo, Rio Grande do Sul. Filha de uma família profundamente enraizada na fé católica.',
-    photo: '/photos/viagens/israel/arca-da-alianca.jpg',
+      'Nasce em Linha São Francisco, Cerro Largo. Sexta de dez irmãos, filha de Pedro Luis "Aloísio" Jung e Thereza Koehler Jung — família de imigrantes alemães onde se falava o dialeto.',
     icon: '👶',
     highlight: true,
   },
   {
-    year: 'Anos 1960–70',
-    decade: '1960s–70s',
-    title: 'Formação no Seminário',
+    year: '1969',
+    decade: '1960s',
+    title: 'Seminário aos 13 anos',
     description:
-      'Cresceu com os valores da igreja católica e aprendeu os dotes de casa no seminário: organização, dedicação e cuidado — virtudes que carrega até hoje.',
+      'Sai de casa seguindo o conselho do pai e vai ao seminário por um ano. Ali aprende com as freiras os predicados que a acompanhariam pela vida toda.',
     icon: '⛪',
   },
   {
-    year: '~1970',
+    year: '~1971',
     title: 'Chegada a Santo Ângelo',
     description:
-      'Muda-se para Santo Ângelo em busca de oportunidades maiores. A cidade que seria o palco de toda a sua trajetória profissional e familiar.',
+      'Aceita o convite de vir trabalhar na casa dos tios de Sérgio — Arno e Doris Tomm, na Rua Andradas. Carrega na bagagem coragem, determinação e um papel com o endereço.',
+    photo: '/photos/historia/santo-angelo-1971.png',
     icon: '🏡',
   },
   {
-    year: '1978',
-    title: 'Casamento com Sérgio Tomm',
+    year: '1977',
+    title: 'Noivado',
     description:
-      'Casa-se com Sérgio Tomm em Santo Ângelo. Ao unir-se à família Tomm, passa a fazer parte da comunidade luterana, onde permanece ativa até hoje.',
-    photo: '/photos/familia/casamento-vintage.jpg',
+      'Depois de anos construindo carreira — livraria, caixa de mercado, laboratório e escritório de agrônomos — firma o compromisso com Sérgio Tomm.',
+    photo: '/photos/historia/noivado-1977.png',
     icon: '💍',
+  },
+  {
+    year: '1978',
+    title: 'Casamento na Luterana Sião',
+    description:
+      'Casa-se com Sérgio na Igreja Evangélica Luterana Sião, onde mais tarde seria a primeira e única presidenta mulher da comunidade.',
+    photo: '/photos/historia/casamento-1978.png',
+    icon: '💒',
     highlight: true,
   },
   {
-    year: '1979–1985',
+    year: '1980–1989',
     title: 'Nascimento dos filhos',
     description:
-      'Nasce Fábio Tomm, depois Carla Tomm e Claudio Tomm. A família cresce com amor e determinação, mesmo nos desafios da vida.',
-    photo: '/photos/familia/familia-noite.jpg',
+      'Fábio (1980, hoje professor doutor na Unipampa), Carla (1982, juíza federal na ESMAFE/RS) e Cláudio (15/04/1989 — no dia em que ela completou 33 anos — hoje sócio no Concept).',
     icon: '👨‍👩‍👧‍👦',
   },
   {
-    year: '1986',
-    title: 'Fundação da Concept',
+    year: '08/08/1986',
+    title: 'Formatura na Unijui',
     description:
-      'Forma-se em Ciências Contábeis e funda a Concept Serviços Contábeis — tornando-se a primeira mulher com escritório contábil próprio em Santo Ângelo. Uma conquista histórica.',
-    icon: '🏢',
+      'Forma-se em Ciências Contábeis. Em 1991 abre seu próprio escritório no Edifício Executivo — a primeira mulher contadora com escritório próprio em Santo Ângelo.',
+    photo: '/photos/historia/formatura-1986.png',
+    icon: '🎓',
     highlight: true,
   },
   {
     year: 'Anos 90–2000',
     title: 'Viagens pelo Brasil',
     description:
-      'Percorre o Brasil de norte a sul: Rio de Janeiro, São Paulo, Brasília, Recife, Natal. Retornou de Brasília a Santo Ângelo de carro — 2.200 km de pura aventura.',
+      'Percorre o Brasil: Rio, São Paulo, Brasília, Recife, Natal. Uma vez voltou de Brasília a Santo Ângelo de carro — 2.200 km.',
     photo: '/photos/viagens/brasilia/catedral-metropolitana.jpg',
     icon: '🚗',
+  },
+  {
+    year: '2002',
+    title: 'Primeiro bisneto',
+    description:
+      'Apresenta o primeiro bisneto aos pais Aloísio e Thereza — quatro gerações juntas numa mesma foto.',
+    photo: '/photos/historia/bisneto-pais-2002.png',
+    icon: '👶',
   },
   {
     year: 'Anos 2000–2010',
     title: 'Viagens internacionais',
     description:
-      'Conhece a Europa (Portugal, Alemanha, Holanda, Bélgica, Hungria) e o Oriente Médio (Egito e Israel). Pisou nas Pirâmides de Gizé e visitou Jerusalém.',
+      'Conhece a Europa (Portugal, Alemanha, Holanda, Bélgica, Hungria) e o Oriente Médio (Egito e Israel). Pisou nas Pirâmides e visitou Jerusalém.',
     photo: '/photos/viagens/egito/esfinge.jpg',
     icon: '✈️',
   },
   {
     year: '2016',
-    title: '60 anos de casamento',
+    title: 'Travessa Geiss, 107',
     description:
-      'Celebra 60 anos de vida com a família reunida. Uma festa que eternizou a força e a alegria de quem vive com gratidão.',
-    photo: '/photos/familia/quadro-60-anos-casamento.jpg',
-    icon: '🥂',
+      'Inaugura o prédio de 4 andares que idealizou e construiu — sede da CONCEPT e pioneira com kitnets Airbnb em Santo Ângelo.',
+    photo: '/photos/historia/escritorio-concept.png',
+    icon: '🏢',
     highlight: true,
   },
   {
-    year: '2026',
+    year: '15/04/2026',
     title: '70 anos — celebração em família',
     description:
-      '15 de abril de 2026. Jacinta completa 70 anos com 3 filhos, 10 netos e uma vida repleta de conquistas, amor e aventuras. A história continua!',
-    photo: '/photos/familia/evento-elegante.jpg',
+      'Sete décadas de coragem, fé, trabalho e amor. 3 filhos, 10 netos e uma comunidade inteira em volta dela. A história continua.',
+    photo: '/photos/historia/70-anos-festa.png',
     icon: '🎂',
     highlight: true,
   },

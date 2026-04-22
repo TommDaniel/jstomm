@@ -57,26 +57,59 @@ class AirbnbIcalSync
                 ? $event->DTEND->getDateTime()->modify('-1 day')->format('Y-m-d')
                 : null;
 
-            $summary = (string) ($event->SUMMARY ?? 'Reserva Airbnb');
+            $summary = (string) ($event->SUMMARY ?? '');
+            $description = (string) ($event->DESCRIPTION ?? '');
 
-            // Skip Airbnb's own "Not available" blocks that aren't real bookings.
-            if (stripos($summary, 'not available') !== false && ! str_contains($uid, 'airbnb.com')) {
-                continue;
-            }
+            [$tenantName, $tenantContact, $notes] = $this->classify($summary, $description);
 
             $apartment->bookings()->updateOrCreate(
                 ['external_uid' => $uid],
                 [
-                    'tenant_name' => $summary,
+                    'tenant_name' => $tenantName,
+                    'tenant_contact' => $tenantContact,
                     'check_in' => $checkIn,
                     'check_out' => $checkOut,
                     'rental_type' => 'diaria',
                     'platform' => 'airbnb',
+                    'notes' => $notes,
                 ],
             );
             $imported++;
         }
 
         return $imported;
+    }
+
+    /**
+     * Extrai nome do inquilino, contato e notas a partir dos campos SUMMARY/DESCRIPTION
+     * do iCal do Airbnb. O Airbnb nunca expõe o nome real do hóspede — apenas flags
+     * genéricas ("Reserved" pra hóspede real, "Airbnb (Not available)" pra bloqueio
+     * manual do calendário). Dados úteis como URL da reserva e últimos 4 dígitos do
+     * telefone vêm no DESCRIPTION.
+     *
+     * @return array{0: string, 1: ?string, 2: ?string}
+     */
+    private function classify(string $summary, string $description): array
+    {
+        $isBlock = stripos($summary, 'not available') !== false;
+
+        if ($isBlock) {
+            return ['Bloqueado (calendário)', null, 'Bloqueio manual no Airbnb.'];
+        }
+
+        $phone4 = null;
+        if (preg_match('/Phone Number \(Last 4 Digits\):\s*(\d{4})/i', $description, $m)) {
+            $phone4 = $m[1];
+        }
+
+        $url = null;
+        if (preg_match('/Reservation URL:\s*(https?:\S+)/i', $description, $m)) {
+            $url = rtrim($m[1], '.,;');
+        }
+
+        $tenantContact = $phone4 ? "Tel. final {$phone4}" : null;
+        $notes = $url ? "Detalhes no Airbnb: {$url}" : null;
+
+        return ['Hóspede Airbnb', $tenantContact, $notes];
     }
 }

@@ -99,6 +99,7 @@ export default function AgendaLocacoesPage() {
       <div className="flex items-center gap-5 mb-4 text-xs font-sans text-creme-papel/60">
         <LegendSwatch color="#C9A961" label="Airbnb" />
         <LegendSwatch color="#7C9374" label="Direto" />
+        <LegendSwatch color="#6B6B5E" label="Bloqueado" />
         <span className="ml-auto text-creme-papel/40">
           {MONTHS[rangeStart.getUTCMonth()]} → {MONTHS[addMonths(rangeEnd, -1).getUTCMonth()]}{' '}
           {addMonths(rangeEnd, -1).getUTCFullYear()}
@@ -245,8 +246,16 @@ function BookingBar({
 
   if (span <= 0) return null
 
-  const color = booking.platform === 'airbnb' ? '#C9A961' : '#7C9374'
-  const label = booking.tenant_name
+  const isBlock = booking.tenant_name === 'Bloqueado (calendário)'
+  const color = isBlock
+    ? '#6B6B5E'
+    : booking.platform === 'airbnb'
+      ? '#C9A961'
+      : '#7C9374'
+  const label = isBlock ? '🔒 Bloqueado' : booking.tenant_name
+
+  // Hachura diagonal pra bloqueios — SVG pattern embutido evita CSS externo.
+  const blockPattern = `repeating-linear-gradient(45deg, ${color}, ${color} 6px, rgba(255,255,255,0.15) 6px, rgba(255,255,255,0.15) 10px)`
 
   return (
     <motion.div
@@ -266,8 +275,8 @@ function BookingBar({
       <div
         className="h-full rounded-md px-2 flex items-center text-xs font-sans truncate shadow-sm hover:shadow-md transition-shadow"
         style={{
-          background: color,
-          color: '#1F3A2E',
+          background: isBlock ? blockPattern : color,
+          color: isBlock ? '#F5EFE6' : '#1F3A2E',
           fontWeight: 500,
         }}
       >

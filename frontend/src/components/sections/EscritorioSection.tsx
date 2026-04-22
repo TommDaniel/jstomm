@@ -3,38 +3,54 @@ import { motion, useInView } from 'framer-motion'
 
 const TIMELINE_ITEMS = [
   {
-    year: '1986',
-    title: 'Formatura e fundação',
+    year: '08/08/1986',
+    title: 'Formatura na Unijui',
     description:
-      'Jacinta forma-se em Ciências Contábeis e funda a Concept Serviços Contábeis — tornando-se a primeira mulher com escritório contábil próprio em Santo Ângelo.',
+      'Forma-se em Ciências Contábeis. Começa como autônoma, atendendo o Grupo Veiga, e constrói sua reputação na cidade.',
     icon: '🎓',
     highlight: true,
   },
   {
-    year: '1986–1990',
-    title: 'Os primeiros anos',
+    year: '1991',
+    title: 'Primeiro escritório próprio',
     description:
-      'Com determinação e competência, estabelece a reputação da Concept na cidade. Os primeiros clientes vêm pela qualidade do trabalho e pela atenção personalizada.',
-    icon: '📊',
+      'Abre escritório no Edifício Executivo — a primeira mulher a ter escritório contábil próprio em Santo Ângelo.',
+    icon: '🏛️',
+    highlight: true,
   },
   {
-    year: 'Anos 90',
-    title: 'Crescimento e consolidação',
+    year: '1994',
+    title: 'Metalcaixas',
     description:
-      'O escritório cresce e se consolida em Santo Ângelo. Jacinta equilibra a gestão profissional com a criação dos três filhos.',
-    icon: '📈',
+      'Com Sérgio, adquire a Eletro Metalúrgica Rural (Metalcaixas). O escritório migra para a Rua Tiradentes, esquina com a Av. Getúlio Vargas.',
+    icon: '🏭',
   },
   {
-    year: 'Hoje',
-    title: 'Legado e reconhecimento',
+    year: '1997',
+    title: 'Sede própria',
     description:
-      'Quatro décadas de serviço impecável. A Concept segue como referência na cidade, e Jacinta é lembrada como pioneira que abriu caminho para outras mulheres na contabilidade.',
-    icon: '⭐',
+      'Constrói e inaugura a sede própria na Av. Getúlio Vargas, onde permanece até o encerramento da empresa, em 2015.',
+    icon: '🏗️',
+  },
+  {
+    year: '2015',
+    title: 'Nasce a CONCEPT',
+    description:
+      'Adquire o acervo de clientes do escritório Eni Bohn e forma a CONCEPT Serviços Contábeis. Equipe atual: Cleusa, Ligia, Vera e Hindra.',
+    icon: '🤝',
+    highlight: true,
+  },
+  {
+    year: '2016',
+    title: 'Travessa Geiss 107',
+    description:
+      'Idealiza e constrói o prédio de 4 andares da Travessa Geiss, 107 — sede atual do Concept e pioneira com kitnets mobiliadas por Airbnb em Santo Ângelo.',
+    icon: '🏢',
     highlight: true,
   },
 ]
 
-const QUOTE = 'A primeira mulher a abrir seu próprio escritório contábil em Santo Ângelo.'
+const QUOTE = 'A primeira contadora mulher a abrir seu próprio escritório em Santo Ângelo.'
 
 function TypewriterText({ text, visible }: { text: string; visible: boolean }) {
   const [displayed, setDisplayed] = useState('')
@@ -218,7 +234,7 @@ export default function EscritorioSection() {
                 { value: '1986', label: 'Fundação', sub: 'há quase 40 anos' },
                 { value: '1ª', label: 'Pioneira', sub: 'mulher contadora em SA' },
                 { value: '4', label: 'Décadas', sub: 'de excelência' },
-                { value: '100%', label: 'Dedicação', sub: 'a cada cliente' },
+                { value: 'CONCEPT', label: 'Hoje', sub: 'Travessa Geiss, 107' },
               ].map((stat) => (
                 <motion.div
                   key={stat.label}
@@ -234,17 +250,26 @@ export default function EscritorioSection() {
               ))}
             </div>
 
-            {/* Photo placeholder */}
+            {/* Fachada atual do Concept */}
             <motion.div
-              className="card-vintage flex items-center justify-center h-48 border-dashed"
-              initial={{ opacity: 0 }}
-              animate={quoteInView ? { opacity: 1 } : {}}
-              transition={{ delay: 0.4 }}
+              className="card-vintage overflow-hidden p-0"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={quoteInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.7, delay: 0.4 }}
             >
-              <div className="text-center">
-                <p className="text-4xl mb-2">📸</p>
-                <p className="font-script text-madeira-clara">Fotos do escritório</p>
-                <p className="font-sans text-creme-papel/30 text-xs">a enviar</p>
+              <img
+                src="/photos/historia/escritorio-concept.png"
+                alt="Fachada do CONCEPT Serviços Contábeis em Santo Ângelo"
+                className="w-full h-48 object-cover"
+                loading="lazy"
+              />
+              <div className="px-4 py-3 border-t border-madeira-clara/20">
+                <p className="font-script text-dourado-vintage text-base">
+                  CONCEPT Serviços Contábeis
+                </p>
+                <p className="font-sans text-creme-papel/50 text-xs">
+                  Travessa Geiss, 107 — Santo Ângelo/RS
+                </p>
               </div>
             </motion.div>
           </div>

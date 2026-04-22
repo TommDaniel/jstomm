@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import GoldenParticles from './GoldenParticles'
 
 const HERO_PHOTOS = [
+  '/photos/historia/70-anos-festa.png',
+  '/photos/historia/casamento-1978.png',
   '/photos/hero/01-egito.jpg',
   '/photos/hero/02-budapeste.jpg',
-  '/photos/hero/03-amsterdam.jpg',
   '/photos/hero/04-lisboa.jpg',
   '/photos/hero/05-serra-gaucha.jpg',
   '/photos/hero/06-elegante.jpg',

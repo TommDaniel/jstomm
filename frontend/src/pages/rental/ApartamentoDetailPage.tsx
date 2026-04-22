@@ -91,17 +91,23 @@ export default function ApartamentoDetailPage() {
       )}
 
       <div className="flex flex-col gap-4">
-        {bookings.map((b, i) => (
+        {bookings.map((b, i) => {
+          const isBlock = b.tenant_name === 'Bloqueado (calendário)'
+          const reservationUrl = extractUrl(b.notes)
+          return (
           <motion.div
             key={b.id}
-            className="card-vintage p-4"
+            className={`card-vintage p-4 ${isBlock ? 'opacity-70 border-creme-papel/10' : ''}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
             <div className="flex items-start gap-3">
               <div className="flex-1 min-w-0">
-                <p className="font-serif text-lg text-creme-papel">{b.tenant_name}</p>
+                <p className="font-serif text-lg text-creme-papel flex items-center gap-2">
+                  {isBlock && <span aria-hidden="true">🔒</span>}
+                  {b.tenant_name}
+                </p>
                 <p className="font-sans text-xs text-creme-papel/60">
                   {formatDate(b.check_in)} → {b.check_out ? formatDate(b.check_out) : 'em aberto'}
                   {' · '}
@@ -114,6 +120,16 @@ export default function ApartamentoDetailPage() {
                   <p className="font-script text-xs text-madeira-clara mt-1">
                     {b.tenant_contact}
                   </p>
+                )}
+                {reservationUrl && (
+                  <a
+                    href={reservationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 mt-2 text-xs font-sans text-dourado-vintage hover:underline"
+                  >
+                    🔗 Abrir reserva no Airbnb
+                  </a>
                 )}
               </div>
               <button
@@ -184,7 +200,8 @@ export default function ApartamentoDetailPage() {
               )}
             </div>
           </motion.div>
-        ))}
+          )
+        })}
 
         {bookings.length === 0 && !showBookingForm && (
           <div className="text-center py-12 card-vintage">
@@ -201,4 +218,10 @@ export default function ApartamentoDetailPage() {
 function formatDate(iso: string): string {
   const d = new Date(iso)
   return `${String(d.getUTCDate()).padStart(2, '0')}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${d.getUTCFullYear()}`
+}
+
+function extractUrl(text: string | null): string | null {
+  if (!text) return null
+  const match = text.match(/(https?:\/\/\S+)/)
+  return match ? match[1] : null
 }

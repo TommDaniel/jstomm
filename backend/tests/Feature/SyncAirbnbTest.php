@@ -22,13 +22,14 @@ BEGIN:VEVENT
 DTSTART;VALUE=DATE:20260505
 DTEND;VALUE=DATE:20260510
 UID:airbnb-booking-abc123@airbnb.com
-SUMMARY:Reserva de Maria
+SUMMARY:Reserved
+DESCRIPTION:Reservation URL: https://www.airbnb.com/hosting/reservations/details/HMXYZ123\nPhone Number (Last 4 Digits): 1234
 END:VEVENT
 BEGIN:VEVENT
 DTSTART;VALUE=DATE:20260601
 DTEND;VALUE=DATE:20260605
-UID:airbnb-booking-def456@airbnb.com
-SUMMARY:Reserva de Carlos
+UID:airbnb-block-def456@airbnb.com
+SUMMARY:Airbnb (Not available)
 END:VEVENT
 END:VCALENDAR
 ICS;
@@ -49,11 +50,18 @@ ICS;
 
         $this->assertSame(2, $imported);
 
-        $booking = $apt->bookings()->where('tenant_name', 'Reserva de Maria')->first();
-        $this->assertNotNull($booking);
-        $this->assertSame('2026-05-05', $booking->check_in->format('Y-m-d'));
-        $this->assertSame('2026-05-09', $booking->check_out->format('Y-m-d'));
-        $this->assertSame('airbnb', $booking->platform);
+        $reservation = $apt->bookings()->where('external_uid', 'airbnb-booking-abc123@airbnb.com')->first();
+        $this->assertNotNull($reservation);
+        $this->assertSame('Hóspede Airbnb', $reservation->tenant_name);
+        $this->assertSame('Tel. final 1234', $reservation->tenant_contact);
+        $this->assertStringContainsString('HMXYZ123', $reservation->notes);
+        $this->assertSame('2026-05-05', $reservation->check_in->format('Y-m-d'));
+        $this->assertSame('2026-05-09', $reservation->check_out->format('Y-m-d'));
+
+        $block = $apt->bookings()->where('external_uid', 'airbnb-block-def456@airbnb.com')->first();
+        $this->assertNotNull($block);
+        $this->assertSame('Bloqueado (calendário)', $block->tenant_name);
+        $this->assertNull($block->tenant_contact);
     }
 
     public function test_sync_is_idempotent_via_external_uid(): void
