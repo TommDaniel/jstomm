@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { Apartment, Booking } from '@/types/rental'
 import { Button } from '@/components/ui/button'
+import ApartmentForm from '@/components/rental/ApartmentForm'
 import BookingForm from '@/components/rental/BookingForm'
 import PaymentForm from '@/components/rental/PaymentForm'
 
@@ -14,6 +15,7 @@ export default function ApartamentoDetailPage() {
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [addPaymentTo, setAddPaymentTo] = useState<number | null>(null)
   const [editBookingId, setEditBookingId] = useState<number | null>(null)
+  const [editingApartment, setEditingApartment] = useState(false)
 
   const { data: apartment } = useQuery<Apartment>({
     queryKey: ['apartment', id],
@@ -56,12 +58,38 @@ export default function ApartamentoDetailPage() {
       </Link>
 
       <div className="mb-8">
-        <h1 className="font-serif text-3xl text-dourado-vintage">{apartment.name}</h1>
-        {apartment.address && (
-          <p className="font-script text-madeira-clara text-sm mt-1">{apartment.address}</p>
-        )}
-        {apartment.notes && (
-          <p className="font-sans text-sm text-creme-papel/60 mt-2">{apartment.notes}</p>
+        <div className="flex items-start gap-2">
+          <div className="flex-1">
+            <h1 className="font-serif text-3xl text-dourado-vintage">{apartment.name}</h1>
+            {apartment.address && (
+              <p className="font-script text-madeira-clara text-sm mt-1">{apartment.address}</p>
+            )}
+            {apartment.notes && (
+              <p className="font-sans text-sm text-creme-papel/60 mt-2">{apartment.notes}</p>
+            )}
+          </div>
+          <button
+            onClick={() => setEditingApartment((v) => !v)}
+            className="text-dourado-vintage/60 hover:text-dourado-vintage text-xl mt-1"
+            aria-label="Editar apartamento"
+            title="Editar"
+          >
+            ✏️
+          </button>
+        </div>
+
+        {editingApartment && (
+          <div className="mt-4">
+            <ApartmentForm
+              apartment={apartment}
+              onCancel={() => setEditingApartment(false)}
+              onSuccess={() => {
+                queryClient.invalidateQueries({ queryKey: ['apartment', id] })
+                queryClient.invalidateQueries({ queryKey: ['apartments'] })
+                setEditingApartment(false)
+              }}
+            />
+          </div>
         )}
       </div>
 
