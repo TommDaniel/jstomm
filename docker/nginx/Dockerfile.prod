@@ -24,6 +24,9 @@ COPY --from=frontend-build /app/dist /var/www/frontend
 # Laravel public dir for PHP-FPM script mapping
 COPY backend/public /var/www/html/public
 
+# Symlink pro volume app_storage (montado em runtime) — serve /storage/* via nginx
+RUN ln -sfn /var/www/html/storage/app/public /var/www/html/public/storage
+
 EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
