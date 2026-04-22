@@ -10,6 +10,7 @@ interface Props {
   apartmentId: number
   onSuccess: () => void
   onCancel: () => void
+  booking?: Booking
 }
 
 const RENTAL_TYPES: { value: RentalType; label: string }[] = [
@@ -24,27 +25,34 @@ const PLATFORMS: { value: Platform; label: string }[] = [
   { value: 'airbnb', label: 'Airbnb' },
 ]
 
-export default function BookingForm({ apartmentId, onSuccess, onCancel }: Props) {
+export default function BookingForm({ apartmentId, onSuccess, onCancel, booking }: Props) {
+  const isEdit = !!booking
   const [form, setForm] = useState({
-    tenant_name: '',
-    tenant_contact: '',
-    check_in: '',
-    check_out: '',
-    rental_type: 'mensal' as RentalType,
-    platform: 'direto' as Platform,
-    price_per_period: '',
-    notes: '',
+    tenant_name: booking?.tenant_name ?? '',
+    tenant_contact: booking?.tenant_contact ?? '',
+    check_in: booking?.check_in?.slice(0, 10) ?? '',
+    check_out: booking?.check_out?.slice(0, 10) ?? '',
+    rental_type: (booking?.rental_type ?? 'mensal') as RentalType,
+    platform: (booking?.platform ?? 'direto') as Platform,
+    price_per_period: booking?.price_per_period
+      ? String(parseFloat(booking.price_per_period))
+      : '',
+    notes: booking?.notes ?? '',
   })
 
   const mutation = useMutation({
-    mutationFn: () =>
-      api.post<Booking>(`/apartments/${apartmentId}/bookings`, {
+    mutationFn: () => {
+      const payload = {
         ...form,
         check_out: form.check_out || null,
         price_per_period: form.price_per_period ? Number(form.price_per_period) : null,
         tenant_contact: form.tenant_contact || null,
         notes: form.notes || null,
-      }),
+      }
+      return isEdit
+        ? api.put<Booking>(`/bookings/${booking!.id}`, payload)
+        : api.post<Booking>(`/apartments/${apartmentId}/bookings`, payload)
+    },
     onSuccess,
   })
 
@@ -54,7 +62,9 @@ export default function BookingForm({ apartmentId, onSuccess, onCancel }: Props)
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <p className="font-serif text-xl text-dourado-vintage mb-4">Nova Locação</p>
+      <p className="font-serif text-xl text-dourado-vintage mb-4">
+        {isEdit ? 'Editar Locação' : 'Nova Locação'}
+      </p>
       <div className="flex flex-col gap-3">
         <Input
           placeholder="Nome do inquilino"
@@ -127,7 +137,11 @@ export default function BookingForm({ apartmentId, onSuccess, onCancel }: Props)
             disabled={!form.tenant_name || !form.check_in || mutation.isPending}
             className="flex-1"
           >
-            {mutation.isPending ? 'Salvando…' : 'Adicionar locação'}
+            {mutation.isPending
+              ? 'Salvando…'
+              : isEdit
+                ? 'Salvar alterações'
+                : 'Adicionar locação'}
           </Button>
           <Button variant="ghost" onClick={onCancel}>
             Cancelar

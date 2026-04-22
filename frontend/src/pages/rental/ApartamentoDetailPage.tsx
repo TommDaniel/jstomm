@@ -13,6 +13,7 @@ export default function ApartamentoDetailPage() {
   const queryClient = useQueryClient()
   const [showBookingForm, setShowBookingForm] = useState(false)
   const [addPaymentTo, setAddPaymentTo] = useState<number | null>(null)
+  const [editBookingId, setEditBookingId] = useState<number | null>(null)
 
   const { data: apartment } = useQuery<Apartment>({
     queryKey: ['apartment', id],
@@ -132,16 +133,40 @@ export default function ApartamentoDetailPage() {
                   </a>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  if (confirm('Excluir essa locação?')) deleteBookingMutation.mutate(b.id)
-                }}
-                className="text-red-400/50 hover:text-red-400 text-lg min-w-[36px] min-h-[36px] flex items-center justify-center"
-                aria-label="Excluir locação"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setEditBookingId(editBookingId === b.id ? null : b.id)}
+                  className="text-dourado-vintage/60 hover:text-dourado-vintage text-lg min-w-[36px] min-h-[36px] flex items-center justify-center"
+                  aria-label="Editar locação"
+                  title="Editar"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={() => {
+                    if (confirm('Excluir essa locação?')) deleteBookingMutation.mutate(b.id)
+                  }}
+                  className="text-red-400/50 hover:text-red-400 text-lg min-w-[36px] min-h-[36px] flex items-center justify-center"
+                  aria-label="Excluir locação"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
+
+            {editBookingId === b.id && (
+              <div className="mt-3">
+                <BookingForm
+                  apartmentId={Number(id)}
+                  booking={b}
+                  onCancel={() => setEditBookingId(null)}
+                  onSuccess={() => {
+                    setEditBookingId(null)
+                    queryClient.invalidateQueries({ queryKey: ['apartment-bookings', id] })
+                  }}
+                />
+              </div>
+            )}
 
             <div className="border-t border-madeira-clara/20 mt-3 pt-3">
               <div className="flex justify-between items-center mb-2">
