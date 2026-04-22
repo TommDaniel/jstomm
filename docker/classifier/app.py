@@ -26,14 +26,14 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 log = logging.getLogger("classifier")
 
 CATEGORY_PROMPTS = {
-    "familia":    "a photo of a family gathering, wedding, birthday, relatives, or loved ones together",
-    "viagem":     "a travel photo with landmarks, tourist attractions, buildings, or scenic places abroad",
-    "evento":     "a photo of a formal event, graduation ceremony, party, celebration, or banquet",
-    "retrato":    "a portrait or close-up photo of a single person posing",
-    "escritorio": "a photo of an office, workplace, business meeting, desk, paperwork, or professional environment",
-    "paisagem":   "a landscape photo of nature, mountains, beaches, forests, rivers, or scenery without people",
-    "documento":  "a scanned document, certificate, letter, form, paper, or screenshot of text",
-    "outros":     "a generic photo that does not fit any specific category",
+    "familia":    "a family photo with multiple people together, a wedding couple, a bride and groom, parents and children, siblings, relatives hugging, a family reunion or household gathering",
+    "viagem":     "a travel or tourism photo showing famous landmarks, monuments, foreign cities, beaches abroad, vacation scenery, or people posing in front of tourist attractions",
+    "evento":     "a formal celebration event: graduation ceremony receiving a diploma, birthday party with cake, wedding reception, banquet, anniversary, or ceremonial gathering with decorations",
+    "retrato":    "a close-up portrait of one single person alone, facing the camera, head and shoulders framed, studio-style solo photo",
+    "escritorio": "an office or workplace scene: business building facade with a company sign, professional desk with computers, meeting room, paperwork environment, or commercial storefront",
+    "paisagem":   "a pure landscape or nature scene with no people: mountains, beaches, forests, rivers, sky, sunset, plants, or wildlife",
+    "documento":  "a plain scanned document, certificate paper, printed letter, form, receipt, ID card, or a screenshot containing mostly text",
+    "outros":     "a generic personal photo that does not clearly fit other categories",
 }
 
 MODEL_ID = os.getenv("CLIP_MODEL", "openai/clip-vit-base-patch32")
