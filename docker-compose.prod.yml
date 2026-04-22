@@ -10,6 +10,8 @@ services:
       - "443:443"
     volumes:
       - ${CERTS_DIR:-/opt/vo-70-anos/certs}:/etc/nginx/certs:ro
+      # Mesma storage do app, ro — pra servir /storage/photos/* via symlink do public/
+      - app_storage:/var/www/html/storage:ro
     depends_on:
       app:
         condition: service_healthy
