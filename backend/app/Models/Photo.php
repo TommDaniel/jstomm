@@ -9,11 +9,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Photo extends Model
 {
     use HasFactory;
-    protected $fillable = ['album_id', 'path', 'thumbnail_path', 'caption', 'taken_at', 'width', 'height', 'metadata'];
+    protected $fillable = [
+        'album_id', 'path', 'thumbnail_path', 'caption', 'taken_at',
+        'width', 'height', 'metadata',
+        'category', 'category_confidence', 'classified_at', 'phash',
+    ];
 
     protected $casts = [
         'metadata' => 'array',
         'taken_at' => 'date',
+        'classified_at' => 'datetime',
+        'category_confidence' => 'float',
     ];
 
     public function album(): BelongsTo

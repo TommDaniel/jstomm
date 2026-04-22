@@ -18,4 +18,8 @@ return [
     'rentals' => [
         'digest_email' => env('RENTALS_DIGEST_EMAIL'),
     ],
+
+    'classifier' => [
+        'url' => env('CLASSIFIER_URL', 'http://classifier:8000'),
+    ],
 ];

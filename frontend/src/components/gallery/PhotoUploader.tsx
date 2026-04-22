@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '@/lib/api'
+import type { PhotoCategory } from '@/types/gallery'
+import { PHOTO_CATEGORIES } from '@/types/gallery'
 
 interface PhotoUploaderProps {
   albumId: number
@@ -19,6 +21,7 @@ interface UploadFile {
 export default function PhotoUploader({ albumId, onUploaded }: PhotoUploaderProps) {
   const [files, setFiles] = useState<UploadFile[]>([])
   const [uploading, setUploading] = useState(false)
+  const [category, setCategory] = useState<PhotoCategory | ''>('')
 
   const onDrop = useCallback((accepted: File[]) => {
     const newFiles = accepted.map((file) => ({
@@ -46,6 +49,7 @@ export default function PhotoUploader({ albumId, onUploaded }: PhotoUploaderProp
 
       const formData = new FormData()
       formData.append('photos[]', item.file)
+      if (category) formData.append('category', category)
 
       try {
         await api.post(`/albums/${albumId}/photos`, formData, {
@@ -95,6 +99,40 @@ export default function PhotoUploader({ albumId, onUploaded }: PhotoUploaderProp
             : 'Arraste fotos aqui ou clique para selecionar'}
         </p>
         <p className="font-sans text-creme-papel/40 text-sm mt-1">PNG, JPG até 10MB cada</p>
+      </div>
+
+      {/* Categoria opcional — vazio = classificar automaticamente */}
+      <div>
+        <p className="text-xs font-sans text-creme-papel/60 mb-1.5">
+          Categoria (opcional — vazio deixa o sistema categorizar automaticamente)
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          <button
+            type="button"
+            onClick={() => setCategory('')}
+            className={`px-3 py-1.5 rounded-full text-xs font-sans border transition-all ${
+              category === ''
+                ? 'bg-dourado-vintage/20 text-dourado-vintage border-dourado-vintage/40'
+                : 'bg-verde-musgo/30 text-creme-papel/60 border-madeira-clara/20 hover:border-madeira-clara/40'
+            }`}
+          >
+            🤖 Auto
+          </button>
+          {PHOTO_CATEGORIES.map((c) => (
+            <button
+              key={c.value}
+              type="button"
+              onClick={() => setCategory(c.value)}
+              className={`px-3 py-1.5 rounded-full text-xs font-sans border transition-all ${
+                category === c.value
+                  ? 'bg-dourado-vintage/20 text-dourado-vintage border-dourado-vintage/40'
+                  : 'bg-verde-musgo/30 text-creme-papel/60 border-madeira-clara/20 hover:border-madeira-clara/40'
+              }`}
+            >
+              {c.emoji} {c.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Preview grid */}

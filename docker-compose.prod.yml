@@ -25,6 +25,9 @@ services:
       - .env.prod
     volumes:
       - app_storage:/var/www/html/storage
+      # Fotos legadas em /storage/ do host, só leitura, pra o comando
+      # photos:import-storage puxar sem duplicar espaço em disco.
+      - ./storage:/var/legacy-photos:ro
     depends_on:
       db:
         condition: service_healthy
@@ -47,7 +50,6 @@ services:
     env_file:
       - .env.prod
     environment:
-      # Let the app container handle migrations; scheduler only runs scheduled commands.
       MIGRATE_ON_BOOT: "false"
     volumes:
       - app_storage:/var/www/html/storage
@@ -55,6 +57,40 @@ services:
       app:
         condition: service_healthy
     restart: unless-stopped
+    networks:
+      - vo_network
+
+  queue:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.prod
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--tries=3", "--max-time=3600"]
+    env_file:
+      - .env.prod
+    environment:
+      MIGRATE_ON_BOOT: "false"
+    volumes:
+      - app_storage:/var/www/html/storage
+      - ./storage:/var/legacy-photos:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - vo_network
+
+  classifier:
+    build:
+      context: docker/classifier
+      dockerfile: Dockerfile
+    volumes:
+      - classifier_models:/models
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "0.8"
     networks:
       - vo_network
 
@@ -91,6 +127,7 @@ volumes:
   pg_data:
   minio_data:
   app_storage:
+  classifier_models:
 
 networks:
   vo_network:

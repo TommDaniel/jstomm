@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('albums', AlbumController::class);
     Route::get('/albums/{album}/photos', [PhotoController::class, 'index']);
     Route::post('/albums/{album}/photos', [PhotoController::class, 'store']);
+    Route::put('/photos/{photo}/category', [PhotoController::class, 'updateCategory']);
     Route::delete('/photos/{photo}', [PhotoController::class, 'destroy']);
 
     // Radios
